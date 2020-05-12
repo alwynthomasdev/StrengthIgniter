@@ -1,11 +1,5 @@
 /****** Object:  Database [StrengthIgniter]    Script Date: 12/05/2020 12:09:56 ******/
 CREATE DATABASE [StrengthIgniter]
- CONTAINMENT = NONE
- ON  PRIMARY 
-( NAME = N'StrengthIgniter', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.SQLEXPRESS\MSSQL\DATA\StrengthIgniter.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
- LOG ON 
-( NAME = N'StrengthIgniter_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.SQLEXPRESS\MSSQL\DATA\StrengthIgniter_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
-GO
 
 IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
 begin
