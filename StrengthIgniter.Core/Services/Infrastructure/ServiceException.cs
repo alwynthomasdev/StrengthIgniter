@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace StrengthIgniter.Core.Infrastructure
+namespace StrengthIgniter.Core.Services.Infrastructure
 {
     public class ServiceException : Exception
     {
