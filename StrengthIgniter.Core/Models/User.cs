@@ -19,6 +19,7 @@ namespace StrengthIgniter.Core.Models
         public DateTime RegisteredDateTimeUtc { get; internal set; }
 
         public IEnumerable<UserSecurityQuestionAnswerModel> SecurityQuestions { get; internal set; }
+        internal IEnumerable<UserTokenModel> Tokens { get; set; }
     }
 
     public class UserSecurityQuestionAnswerModel
@@ -27,6 +28,14 @@ namespace StrengthIgniter.Core.Models
         public string QuestionText { get; set; }
         internal string AnswerHash { get; set; }
         public int? FailedAnswerAttemptCount { get; internal set; }
+    }
+
+    public class UserTokenModel
+    {
+        public Guid Reference { get; internal set; }
+        public string PurposeCode { get; internal set; }
+        public DateTime IssuedDateTimeUtc { get; internal set; }
+        public DateTime ExpiryDateTimeUtc { get; internal set; }
     }
 
     public enum UserType

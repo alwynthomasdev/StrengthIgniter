@@ -6,7 +6,7 @@ namespace StrengthIgniter.Core.Models
 {
     public class RegistrationModel
     {
-        public string PersonalName { get; set; }
+        public string Name { get; set; }
         public string EmailAddress { get; set; }
         public string Password { get; set; }
 
@@ -26,7 +26,7 @@ namespace StrengthIgniter.Core.Models
     {
         public RegistrationModelValidator(RegistrationModelValidatorConfig validatorConfig)
         {
-            RuleFor(x => x.PersonalName)
+            RuleFor(x => x.Name)
                 .NotEmpty()
                 .Length(3, 256)
                 .WithMessage("PersonalName must be between 3 and 256 characters.");
