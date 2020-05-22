@@ -15,9 +15,12 @@ namespace StrengthIgniter.Core.Services
     public interface IRegistrationService
     {
         RegistrationResponseType Register(RegistrationModel request);
+        RegistrationValidationResponseType ValidateRegistration(Guid registrationTokenReference);
+        ReIssueResponseType ReIssueAccountValidationEmail(string emailAddress);
+        IEnumerable<SecurityQuestionModel> GetSecretQuestions();
     }
 
-    public class RegistrationService : ServiceBase
+    public class RegistrationService : ServiceBase, IRegistrationService
     {
         #region CTOR
         private readonly RegistrationServiceConfig _Config;
@@ -76,7 +79,7 @@ namespace StrengthIgniter.Core.Services
                         }
                     }
 
-                    string url = string.Format(_Config.ValidateRegistrationBaseUrl, tkn.Reference);
+                    string url = string.Format(_Config.ValidateRegistrationBaseUrl, tkn.TokenReference);
                     SendRegistrationValidationEmail(user, url, auditId);
 
                     return RegistrationResponseType.Success;
@@ -92,6 +95,107 @@ namespace StrengthIgniter.Core.Services
                 ServiceException serviceException = CreateServiceException(ex, MethodInfo.GetCurrentMethod().Name, registrationModel);
                 throw serviceException;
             }
+        }
+
+        public RegistrationValidationResponseType ValidateRegistration(Guid registrationTokenReference)
+        {
+            try
+            {
+                UserModel user = _UserDal.GetByToken(registrationTokenReference);
+                if (user != null)
+                {
+                    //this token should definitely exist other wise gt by token would nt work
+                    UserTokenModel userToken = user.Tokens.Where(x => x.TokenReference == registrationTokenReference).First();
+                    if (userToken.PurposeCode == "Registration")
+                    {
+                        if (userToken.ExpiryDateTimeUtc > DateTime.UtcNow)
+                        {
+                            LogInfo($"Registration validation attempted using expired token '{registrationTokenReference}' for user with reference '{user.Reference}'.");
+                            return RegistrationValidationResponseType.RegistrationTokenExpired;
+                        }
+                        else//token expired
+                        {
+                            using (IDbConnection dbConnection = GetConnection())
+                            {
+                                using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
+                                {
+                                    _UserDal.UpdateRegistrationValidated(dbConnection, dbTransaction, user.UserId);
+                                    CreateAuditEvent(dbConnection, dbTransaction, AuditEventType.ValidatedRegistration, user.UserId, "", null);
+                                }
+                            }
+
+                            return RegistrationValidationResponseType.Success;
+                        }
+                    }
+                    else//invalid purpose code
+                    {
+                        LogInfo($"Registration validation attempted using token '{registrationTokenReference}' with purpose '{userToken.PurposeCode}' for user with reference '{user.Reference}'.");
+                    }
+                }
+                else//failed to get user/token
+                {
+                    LogInfo($"Registration validation attempt failed with token '{registrationTokenReference}'.");
+                    return RegistrationValidationResponseType.NotFound;
+                }
+
+                return RegistrationValidationResponseType.ValidationAttemptFailed;
+            }
+            catch (Exception ex)
+            {
+                ServiceException serviceException = CreateServiceException(ex, MethodInfo.GetCurrentMethod().Name, new { registrationTokenReference = registrationTokenReference });
+                throw serviceException;
+            }
+        }
+
+        public ReIssueResponseType ReIssueAccountValidationEmail(string emailAddress)
+        {
+            try
+            {
+                UserModel user = _UserDal.GetByEmailAddress(emailAddress);
+                if (user != null)
+                {
+                    if (!user.IsRegistrationValidated)
+                    {
+                        UserTokenModel token = CreateRegistrationToken();
+
+                        int auditId = 0;
+
+                        using (IDbConnection dbConnection = GetConnection())
+                        {
+                            using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
+                            {
+                                _UserDal.CreateUserToken(dbConnection, dbTransaction, user.Reference, token);
+                                auditId = CreateAuditEvent(AuditEventType.NewUserRegistration, user.UserId, "", null);
+                            }
+                        }
+
+                        string url = string.Format(_Config.ValidateRegistrationBaseUrl, token.TokenReference);
+                        SendRegistrationValidationEmail(user, url, auditId);
+
+                        return ReIssueResponseType.Success;
+                    }
+                    else// account already valid
+                    {
+                        LogInfo($"Account validation email re-issue requested for user with reference '{user.Reference}' are already valid.");
+                        return ReIssueResponseType.AlreadyValid;
+                    }
+                }
+                else// no user found
+                {
+                    LogInfo($"Account validation email re-issue requested for non existing account with email address '{emailAddress}'.");
+                    return ReIssueResponseType.NoAccount;
+                }
+            }
+            catch (Exception ex)
+            {
+                ServiceException serviceException = CreateServiceException(ex, MethodInfo.GetCurrentMethod().Name, new { emailAddress = emailAddress });
+                throw serviceException;
+            }
+        }
+
+        public IEnumerable<SecurityQuestionModel> GetSecretQuestions()
+        {
+            return _SecurityQuestions;
         }
 
         #region Private Methods
@@ -158,7 +262,7 @@ namespace StrengthIgniter.Core.Services
         {
             return new UserTokenModel
             {
-                Reference = Guid.NewGuid(),
+                TokenReference = Guid.NewGuid(),
                 PurposeCode = "Registration",
                 IssuedDateTimeUtc = DateTime.UtcNow,
                 ExpiryDateTimeUtc = DateTime.UtcNow.AddHours(_Config.RegistrationTokenExpiryHours)
@@ -238,6 +342,21 @@ namespace StrengthIgniter.Core.Services
     {
         Success = 1,
         Exists = 0,
+    }
+
+    public enum RegistrationValidationResponseType
+    {
+        Success = 1,
+        ValidationAttemptFailed = -1,
+        RegistrationTokenExpired = -2,
+        NotFound = -3
+    }
+
+    public enum ReIssueResponseType
+    {
+        Success = 1,
+        NoAccount = -1,
+        AlreadyValid = -2
     }
 
     #endregion

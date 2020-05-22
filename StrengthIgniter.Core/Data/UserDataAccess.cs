@@ -11,11 +11,14 @@ namespace StrengthIgniter.Core.Data
     public interface IUserDataAccess
     {
         UserModel GetByEmailAddress(string emailAddress);
-        void UpdateUserLoginAttempt(IDbConnection con, IDbTransaction transaction, UserModel user);
+        UserModel GetByToken(Guid tokenReference);
 
         int CreateNewUser(IDbConnection con, IDbTransaction transaction, UserModel user);
         void CreateUserToken(IDbConnection con, IDbTransaction transaction, Guid userReference, UserTokenModel token);
-        void CreateSecurityQuestions(IDbConnection con, IDbTransaction transaction, Guid userReference, IEnumerable<UserSecurityQuestionAnswerModel> questions);
+        void CreateSecurityQuestion(IDbConnection con, IDbTransaction transaction, Guid userReference, UserSecurityQuestionAnswerModel question);
+
+        void UpdateUserLoginAttempt(IDbConnection con, IDbTransaction transaction, UserModel user);
+        void UpdateRegistrationValidated(IDbConnection con, IDbTransaction transaction, int userId);
     }
 
     public class UserDataAccess : DataAccessBase, IUserDataAccess
@@ -63,29 +66,52 @@ WHERE
             }
         }
 
-        public void UpdateUserLoginAttempt(IDbConnection con, IDbTransaction transaction, UserModel user)
+        public UserModel GetByToken(Guid tokenReference)
         {
-            #region SQL
+            #region sql
             string sql = @"
-UPDATE [User] SET
-    [LastLoginDateTimeUtc] = @LastLoginDateTimeUtc,
-    [LockoutEndDateTimeUtc] = @LockoutEndDateTimeUtc,
-    [FailedLoginAttemptCount] = @FailedLoginAttemptCount
-WHERE [UserId] = @UserId
-".Trim();
+SELECT TOP 1
+    [u].[UserId],
+    [u].[Reference],
+    [u].[Name],
+    [u].[EmailAddress],
+    [u].[PasswordHash],
+    [u].[UserTypeCode],
+    [u].[LastLoginDateTimeUtc],
+    [u].[LockoutEndDateTimeUtc],
+    [u].[FailedLoginAttemptCount],
+    [u].[IsRegistrationValidated],
+    [u].[RegisteredDateTimeUtc],
+    [ut].[Reference] AS [TokenReference],
+    [ut].[PurposeCode],
+    [ut].[IssuedDateTimeUtc],
+    [ut].[ExpiryDateTimeUtc]
+FROM [UserToken] [ut]
+    INNER JOIN [User] [u]
+        ON [ut].[UserId] = [u].[UserId]
+WHERE 
+    [ut].[Reference] =  @TokenReference AND
+    [u].[IsDeleted] = 0".Trim();
             #endregion
 
-            object parameters = new
+            object parameters = new { TokenReference = tokenReference };
+            Func<UserModel, UserTokenModel, UserModel> fnMap = (u, ut) =>
             {
-                UserId = user.UserId,
-                LastLoginDateTimeUtc = user.LastLoginDateTimeUtc,
-                LockoutEndDateTimeUtc = user.LockoutEndDateTimeUtc,
-                FailedLoginAttemptCount = user.FailedLoginAttemptCount
+                u.Tokens = new UserTokenModel[] { ut };
+                return u;
             };
 
             try
             {
-                con.Execute(sql, parameters, transaction);
+                using (IDbConnection dbConnection = GetConnection())
+                {
+                    return dbConnection.Query<UserModel, UserTokenModel, UserModel>(
+                        sql,
+                        map: fnMap,
+                        splitOn: "TokenReference",
+                        param: parameters
+                    ).FirstOrDefault();
+                }
             }
             catch (Exception ex)
             {
@@ -123,7 +149,10 @@ VALUES
                     {
                         CreateUserToken(con, transaction, user.Reference, token);
                     }
-                    CreateSecurityQuestions(con, transaction, user.Reference, user.SecurityQuestions);
+                    foreach(UserSecurityQuestionAnswerModel question in user.SecurityQuestions)
+                    {
+                        CreateSecurityQuestion(con, transaction, user.Reference, question);
+                    }
                     return userId.Value;
                 }
                 else
@@ -141,7 +170,7 @@ VALUES
             }
         }
 
-        public void CreateSecurityQuestions(IDbConnection con, IDbTransaction transaction, Guid userReference, IEnumerable<UserSecurityQuestionAnswerModel> questions)
+        public void CreateSecurityQuestion(IDbConnection con, IDbTransaction transaction, Guid userReference, UserSecurityQuestionAnswerModel question)
         {
             #region SQL
             string sql = @"
@@ -169,24 +198,21 @@ VALUES
 //".Trim();
             #endregion
 
-            foreach(UserSecurityQuestionAnswerModel question in questions)
+            object parameters = new
             {
-                object parameters = new
-                {
-                    UserReference = userReference,
-                    Reference = question.Reference,
-                    QuestionText = question.QuestionText,
-                    AnswerHash = question.AnswerHash
-                };
+                UserReference = userReference,
+                Reference = question.Reference,
+                QuestionText = question.QuestionText,
+                AnswerHash = question.AnswerHash
+            };
 
-                try
-                {
-                    con.Execute(sql, question, transaction);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataAccessException(ex, sql, question);
-                }
+            try
+            {
+                con.Execute(sql, question, transaction);
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(ex, sql, question);
             }
         }
 
@@ -217,11 +243,63 @@ VALUES
             object parameters = new
             {
                 UserReference = userReference,
-                Reference = token.Reference,
+                Reference = token.TokenReference,
                 PurposeCode = token.PurposeCode,
                 IssuedDateTimeUtc = token.IssuedDateTimeUtc,
                 ExpiryDateTimeUtc = token.ExpiryDateTimeUtc
             };
+
+            try
+            {
+                con.Execute(sql, parameters, transaction);
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
+        }
+
+        public void UpdateUserLoginAttempt(IDbConnection con, IDbTransaction transaction, UserModel user)
+        {
+            #region SQL
+            string sql = @"
+UPDATE [User] SET
+    [LastLoginDateTimeUtc] = @LastLoginDateTimeUtc,
+    [LockoutEndDateTimeUtc] = @LockoutEndDateTimeUtc,
+    [FailedLoginAttemptCount] = @FailedLoginAttemptCount
+WHERE [UserId] = @UserId
+".Trim();
+            #endregion
+
+            object parameters = new
+            {
+                UserId = user.UserId,
+                LastLoginDateTimeUtc = user.LastLoginDateTimeUtc,
+                LockoutEndDateTimeUtc = user.LockoutEndDateTimeUtc,
+                FailedLoginAttemptCount = user.FailedLoginAttemptCount
+            };
+
+            try
+            {
+                con.Execute(sql, parameters, transaction);
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
+        }
+
+        public void UpdateRegistrationValidated(IDbConnection con, IDbTransaction transaction, int userId)
+        {
+            #region SQL
+            string sql = @"
+UPDATE [User]
+SET [IsRegistrationValidated] = 1
+WHERE [UserId] = @UserId
+".Trim();
+            #endregion
+
+            object parameters = new { UserId = userId };
 
             try
             {

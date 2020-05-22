@@ -18,7 +18,7 @@ namespace StrengthIgniter.Core.Models
         public bool IsRegistrationValidated { get; internal set; }
         public DateTime RegisteredDateTimeUtc { get; internal set; }
 
-        public IEnumerable<UserSecurityQuestionAnswerModel> SecurityQuestions { get; internal set; }
+        internal IEnumerable<UserSecurityQuestionAnswerModel> SecurityQuestions { get; set; }
         internal IEnumerable<UserTokenModel> Tokens { get; set; }
     }
 
@@ -32,7 +32,7 @@ namespace StrengthIgniter.Core.Models
 
     public class UserTokenModel
     {
-        public Guid Reference { get; internal set; }
+        public Guid TokenReference { get; internal set; }
         public string PurposeCode { get; internal set; }
         public DateTime IssuedDateTimeUtc { get; internal set; }
         public DateTime ExpiryDateTimeUtc { get; internal set; }
