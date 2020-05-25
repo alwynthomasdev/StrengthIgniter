@@ -19,6 +19,8 @@ namespace StrengthIgniter.Core.Data
 
         void UpdateUserLoginAttempt(IDbConnection con, IDbTransaction transaction, UserModel user);
         void UpdateRegistrationValidated(IDbConnection con, IDbTransaction transaction, int userId);
+        void UpdateSecurityQuestionAttempts(IDbConnection con, IDbTransaction transaction, int userId, int? failedAttempts);
+        void UpdatePassword(IDbConnection con, IDbTransaction transaction, int userId, string passwordHash);
     }
 
     public class UserDataAccess : DataAccessBase, IUserDataAccess
@@ -300,6 +302,50 @@ WHERE [UserId] = @UserId
             #endregion
 
             object parameters = new { UserId = userId };
+
+            try
+            {
+                con.Execute(sql, parameters, transaction);
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
+        }
+
+        public void UpdateSecurityQuestionAttempts(IDbConnection con, IDbTransaction transaction, int userId, int? failedAttempts)
+        {
+            #region SQL
+            string sql = @"
+UPDATE [FailedAnswerAttemptCount] SET
+    [FailedAnswerAttemptCount] = @FailedAnswerAttemptCount
+WHERE [UserId] = @UserId
+".Trim();
+            #endregion
+
+            object parameters = new { UserId = userId, FailedAnswerAttemptCount = failedAttempts };
+
+            try
+            {
+                con.Execute(sql, parameters, transaction);
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
+        }
+
+        public void UpdatePassword(IDbConnection con, IDbTransaction transaction, int userId, string passwordHash)
+        {
+            #region SQL
+            string sql = @"
+UPDATE [User] SET
+    [PasswordHash] = @PasswordHash
+WHERE [UserId] = @UserId
+".Trim();
+            #endregion
+
+            object parameters = new { UserId = userId, PasswordHash = passwordHash };
 
             try
             {

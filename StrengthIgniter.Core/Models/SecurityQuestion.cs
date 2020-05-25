@@ -12,6 +12,7 @@ namespace StrengthIgniter.Core.Models
         public string Question { get; internal set; }
     }
 
+    //used for registration
     public class SecurityQuestionAnswerModel
     {
         public int SecurityQuestionId { get; set; }
