@@ -67,7 +67,7 @@ SELECT SCOPE_IDENTITY()
                 InsertAuditEventItems(connection, transaction, aid.Value, auditEvent.Items);
                 return aid.Value;
             }
-            catch (DataAccessException ex)
+            catch (DataAccessException)
             {
                 throw;
             }

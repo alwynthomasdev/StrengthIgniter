@@ -39,6 +39,8 @@ namespace StrengthIgniter.Core.Models
 
         public const string NewUserRegistration = "NewUserRegistration";
         public const string ValidatedRegistration = "ValidatedRegistration";
+
+        public const string SecurityQuestionsUpdated = "SecurityQuestionsUpdated";
     }
 
 }

@@ -12,11 +12,13 @@ namespace StrengthIgniter.Core.Models
         public string Question { get; internal set; }
     }
 
-    //used for registration
+    //used for registration and user security question reset
     public class SecurityQuestionAnswerModel
     {
         public int SecurityQuestionId { get; set; }
         public string Answer { get; set; }
+
+        public Guid? Reference { get; set; }
     }
     public class SecurityQuestionAnswerModelValidator : AbstractValidator<SecurityQuestionAnswerModel>
     {
@@ -32,5 +34,4 @@ namespace StrengthIgniter.Core.Models
                 .WithMessage($"An answer to security questions must be between {securityQuestionAnswerMinLength} and {securityQuestionAnswerMaxLength} characters long.");
         }
     }
-
 }

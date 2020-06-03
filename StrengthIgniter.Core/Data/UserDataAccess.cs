@@ -10,8 +10,10 @@ namespace StrengthIgniter.Core.Data
 {
     public interface IUserDataAccess
     {
+        UserModel GetByReference(Guid reference);
         UserModel GetByEmailAddress(string emailAddress);
         UserModel GetByToken(Guid tokenReference);
+        IEnumerable<UserSecurityQuestionAnswerModel> GetFailedQuestionsForUser(Guid userReference);
 
         int CreateNewUser(IDbConnection con, IDbTransaction transaction, UserModel user);
         void CreateUserToken(IDbConnection con, IDbTransaction transaction, Guid userReference, UserTokenModel token);
@@ -21,6 +23,7 @@ namespace StrengthIgniter.Core.Data
         void UpdateRegistrationValidated(IDbConnection con, IDbTransaction transaction, int userId);
         void UpdateSecurityQuestionAttempts(IDbConnection con, IDbTransaction transaction, int userId, int? failedAttempts);
         void UpdatePassword(IDbConnection con, IDbTransaction transaction, int userId, string passwordHash);
+        void UpdateSecurityQuestion(IDbConnection con, IDbTransaction transaction, UserSecurityQuestionAnswerModel question);
     }
 
     public class UserDataAccess : DataAccessBase, IUserDataAccess
@@ -30,6 +33,53 @@ namespace StrengthIgniter.Core.Data
         {
         }
         #endregion
+
+        public UserModel GetByReference(Guid reference)
+        {
+            #region sql
+            string sql = @"
+SELECT TOP 1
+    [u].[UserId],
+    [u].[Reference],
+    [u].[Name],
+    [u].[EmailAddress],
+    [u].[PasswordHash],
+    [u].[UserTypeCode],
+    [u].[LastLoginDateTimeUtc],
+    [u].[LockoutEndDateTimeUtc],
+    [u].[FailedLoginAttemptCount],
+    [u].[IsRegistrationValidated],
+    [u].[RegisteredDateTimeUtc]
+FROM [User] [u]
+WHERE 
+    [u].[Reference] = @Reference AND
+    [u].[IsDeleted] = 0".Trim();
+            #endregion
+
+            object parameters = new { Reference = reference };
+
+            try
+            {
+                using (IDbConnection dbConnection = GetConnection())
+                {
+                    UserModel user = dbConnection.QuerySingleOrDefault<UserModel>(sql, parameters);
+                    if (user != null)
+                    {
+                        user.SecurityQuestions = GetUserSecurityQuestionAnswersById(user.UserId);
+                    }
+                    return user;
+                }
+            }
+            catch(DataAccessException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
+        }
+
 
         public UserModel GetByEmailAddress(string emailAddress)
         {
@@ -59,10 +109,19 @@ WHERE
             {
                 using (IDbConnection dbConnection = GetConnection())
                 {
-                    return dbConnection.QuerySingleOrDefault<UserModel>(sql, parameters);
+                    UserModel user = dbConnection.QuerySingleOrDefault<UserModel>(sql, parameters);
+                    if (user != null)
+                    {
+                        user.SecurityQuestions = GetUserSecurityQuestionAnswersById(user.UserId);
+                    }
+                    return user;
                 }
             }
-            catch(Exception ex)
+            catch (DataAccessException)
+            {
+                throw;
+            }
+            catch (Exception ex)
             {
                 throw new DataAccessException(ex, sql, parameters);
             }
@@ -107,15 +166,59 @@ WHERE
             {
                 using (IDbConnection dbConnection = GetConnection())
                 {
-                    return dbConnection.Query<UserModel, UserTokenModel, UserModel>(
+                    UserModel user = dbConnection.Query<UserModel, UserTokenModel, UserModel>(
                         sql,
                         map: fnMap,
                         splitOn: "TokenReference",
                         param: parameters
                     ).FirstOrDefault();
+
+                    if(user!=null)
+                    {
+                        user.SecurityQuestions = GetUserSecurityQuestionAnswersById(user.UserId);
+                    }
+                    return user;
                 }
             }
+            catch(DataAccessException)
+            {
+                throw;
+            }
             catch (Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
+        }
+
+        public IEnumerable<UserSecurityQuestionAnswerModel> GetFailedQuestionsForUser(Guid userReference)
+        {
+            #region SQL
+            string sql = @"
+DECLARE @UserId INTEGER
+SELECT TOP 1 @UserId = [UserId] FROM [User] WHERE [Reference] = @UserReference AND [IsDeleted] = 0
+
+SELECT
+    [Reference],
+    [QuestionText],
+    [AnswerHash],
+    [FailedAnswerAttemptCount]
+FROM
+    [UserSecurityQuestionAnswer]
+WHERE 
+    [UserId] = @UserId
+    AND [FailedAnswerAttemptCount] > 0";
+            #endregion
+
+            object parameters = new { UserReference = userReference };
+
+            try
+            {
+                using (IDbConnection dbConnection = GetConnection())
+                {
+                    return dbConnection.Query<UserSecurityQuestionAnswerModel>(sql, parameters);
+                }
+            }
+            catch(Exception ex)
             {
                 throw new DataAccessException(ex, sql, parameters);
             }
@@ -162,7 +265,7 @@ VALUES
                     throw new DataAccessException("Failed to create user.", sql, user);
                 }
             }
-            catch (DataAccessException ex)
+            catch (DataAccessException)
             {
                 throw;
             }
@@ -357,9 +460,62 @@ WHERE [UserId] = @UserId
             }
         }
 
+        public void UpdateSecurityQuestion(IDbConnection con, IDbTransaction transaction, UserSecurityQuestionAnswerModel question)
+        {
+            #region SQL
+            string sql = @"
+UPDATE [UserSecurityQuestionAnswer]
+SET
+    [QuestionText] = @QuestionText
+    [AnswerHash] = @AnswerHash
+    [FailedAnswerAttemptCount] = NULL
+WHERE
+    [Reference] = @Reference
+".Trim();
+            #endregion
+
+            try
+            {
+
+            }
+            catch(Exception ex)
+            {
+                throw new DataAccessException(ex, sql, question);
+            }
+        }
+
         #region Private Methods
 
+        private IEnumerable<UserSecurityQuestionAnswerModel> GetUserSecurityQuestionAnswersById(int userId)
+        {
+            #region SQL
+            string sql = @"
+SELECT
+    [Reference],
+    [QuestionText],
+    [AnswerHash],
+    [FailedAnswerAttemptCount]
+FROM
+    [UserSecurityQuestionAnswer]
+WHERE 
+    [UserId] = @UserId"
+.Trim();
+            #endregion
 
+            object parameters = new { UserId = userId };
+
+            try
+            {
+                using (IDbConnection dbConnection = GetConnection())
+                {
+                    return dbConnection.Query<UserSecurityQuestionAnswerModel>(sql, parameters);
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
+        }
 
         #endregion
 
