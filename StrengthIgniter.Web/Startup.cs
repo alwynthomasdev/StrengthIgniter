@@ -37,14 +37,6 @@ namespace StrengthIgniter.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            string appName = Configuration.GetValue<string>("AppName");
-            IConfigurationSection section = Configuration.GetSection("Database");
-
-            SmtpConfiguration smtpConfiguration = new SmtpConfiguration();
-            Configuration.Bind("EmailSettings:SmtpSettings", smtpConfiguration);
-
-            //string connectionString = Configuration.GetValue<string>("Database:DefaultConnectionString:AppName");
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
