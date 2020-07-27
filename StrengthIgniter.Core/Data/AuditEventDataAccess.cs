@@ -18,7 +18,7 @@ namespace StrengthIgniter.Core.Data
     public class AuditEventDataAccess : DataAccessBase, IAuditEventDataAccess
     {
         #region CTOR
-        public AuditEventDataAccess(Func<IDbConnection> fnGetConnection) : base(fnGetConnection)
+        public AuditEventDataAccess(DatabaseConnectionFactory dbConnectionFactory) : base(dbConnectionFactory.GetConnection)
         {
         }
         #endregion

@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
+using Microsoft.Extensions.Logging;
 using StrengthIgniter.Core.Data;
+using StrengthIgniter.Core.Data.Infrastructure;
 using StrengthIgniter.Core.Models;
 using StrengthIgniter.Core.Services.Infrastructure;
 using StrengthIgniter.Core.Utils;
@@ -39,10 +41,10 @@ namespace StrengthIgniter.Core.Services
             ITemplateUtility templateUtility,
             //
             IAuditEventDataAccess auditEventDal,
-            ILogUtility logger,
-            Func<IDbConnection> fnGetConnection
+            ILoggerFactory loggerFactory,
+            DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDal, logger, fnGetConnection)
+            : base(auditEventDal, loggerFactory.CreateLogger(typeof(RegistrationService)), dbConnectionFactory.GetConnection)
         {
             _Config = config;
             _UserDal = userDal;
@@ -357,6 +359,28 @@ namespace StrengthIgniter.Core.Services
         Success = 1,
         NoAccount = -1,
         AlreadyValid = -2
+    }
+
+    #endregion
+
+    #region Factory
+
+    public static class RegistrationFactory
+    {
+        public static IRegistrationService Build(
+            RegistrationServiceConfig config,
+            IHashUtility hashUtility,
+            IEmailUtility emailUtility,
+            ITemplateUtility templateUtility,
+            ILoggerFactory loggerFactory,
+            DatabaseConnectionFactory dbConnectionFactory)
+        {
+            IUserDataAccess userDal = new UserDataAccess(dbConnectionFactory);
+            ISecurityQuestionDataAccess securityQuestionDal = new SecurityQuestionDataAccess(dbConnectionFactory);
+            IAuditEventDataAccess auditEventDal = new AuditEventDataAccess(dbConnectionFactory);
+
+            return new RegistrationService(config, userDal, securityQuestionDal, hashUtility, emailUtility, templateUtility, auditEventDal, loggerFactory, dbConnectionFactory);
+        }
     }
 
     #endregion

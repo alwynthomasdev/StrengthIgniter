@@ -1,4 +1,6 @@
-﻿using StrengthIgniter.Core.Data;
+﻿using Microsoft.Extensions.Logging;
+using StrengthIgniter.Core.Data;
+using StrengthIgniter.Core.Data.Infrastructure;
 using StrengthIgniter.Core.Models;
 using StrengthIgniter.Core.Services.Infrastructure;
 using StrengthIgniter.Core.Utils;
@@ -15,7 +17,7 @@ namespace StrengthIgniter.Core.Services
         LoginResponse Login(LoginRequest request);
     }
 
-    public class LoginService : ServiceBase
+    public class LoginService : ServiceBase, ILoginService
     {
         #region CTOR
         private readonly LoginServiceConfig _Config;
@@ -32,10 +34,10 @@ namespace StrengthIgniter.Core.Services
             ITemplateUtility templateUtility,
             //
             IAuditEventDataAccess auditEventDal,
-            ILogUtility logger,
-            Func<IDbConnection> fnGetConnection
+            ILoggerFactory loggerFactory,
+            DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDal, logger, fnGetConnection)
+            : base(auditEventDal, loggerFactory.CreateLogger(typeof(LoginService)), dbConnectionFactory.GetConnection)
         {
             _Config = config;
             _UserDal = userDal;

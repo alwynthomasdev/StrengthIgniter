@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
+using Microsoft.Extensions.Logging;
 using StrengthIgniter.Core.Data;
+using StrengthIgniter.Core.Data.Infrastructure;
 using StrengthIgniter.Core.Models;
 using StrengthIgniter.Core.Services.Infrastructure;
 using StrengthIgniter.Core.Utils;
@@ -24,25 +26,25 @@ namespace StrengthIgniter.Core.Services
          */
     }
 
-    public class UserSecurityQuestionResetService : ServiceBase
+    public class UserSecurityQuestionResetService : ServiceBase, IUserSecurityQuestionResetService
     {
         #region CTOR
-        private readonly UserSecurityQuestionResetServiceServiceConfig _Config;
+        private readonly UserSecurityQuestionResetServiceConfig _Config;
         private readonly IUserDataAccess _UserDal;
         private readonly IHashUtility _HashUtility;
         private readonly IEnumerable<SecurityQuestionModel> _SecurityQuestions;
 
         public UserSecurityQuestionResetService(
-            UserSecurityQuestionResetServiceServiceConfig config,
+            UserSecurityQuestionResetServiceConfig config,
             IUserDataAccess userDal,
             ISecurityQuestionDataAccess securityQuestionDal,
             IHashUtility hashUtility,
             //
             IAuditEventDataAccess auditEventDal,
-            ILogUtility logger,
-            Func<IDbConnection> fnGetConnection
+            ILoggerFactory loggerFactory,
+            DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDal, logger, fnGetConnection)
+            : base(auditEventDal, loggerFactory.CreateLogger(typeof(UserSecurityQuestionResetService)), dbConnectionFactory.GetConnection)
         {
             _Config = config;
             _UserDal = userDal;
@@ -160,7 +162,7 @@ namespace StrengthIgniter.Core.Services
 
     #region Models
 
-    public class UserSecurityQuestionResetServiceServiceConfig
+    public class UserSecurityQuestionResetServiceConfig
     {
         //public int NumberOfSecretQuestionsRequired { get; set; }
         public int SecretQuestionAnswerMinLength { get; set; }

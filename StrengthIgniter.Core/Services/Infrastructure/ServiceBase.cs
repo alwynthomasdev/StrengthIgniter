@@ -1,5 +1,7 @@
 ﻿using CodeFluff.Extensions.IEnumerable;
+using Microsoft.Extensions.Logging;
 using StrengthIgniter.Core.Data;
+using StrengthIgniter.Core.Data.Infrastructure;
 using StrengthIgniter.Core.Models;
 using StrengthIgniter.Core.Utils;
 using System;
@@ -13,18 +15,18 @@ namespace StrengthIgniter.Core.Services.Infrastructure
     {
         #region CTOR
         private readonly IAuditEventDataAccess _AuditEventDal;
-        private readonly ILogUtility _Logger;
+        private readonly ILogger _Logger;
         public readonly Func<IDbConnection> GetConnection;
 
         public ServiceBase(
             IAuditEventDataAccess auditEventDal,
-            ILogUtility logger,
-            Func<IDbConnection> fnGetDbConnection
+            ILogger logger,
+            Func<IDbConnection> fnGetConnection
         )
         {
             _AuditEventDal = auditEventDal;
             _Logger = logger;
-            GetConnection = fnGetDbConnection;
+            GetConnection = fnGetConnection;
         }
         #endregion
 
@@ -37,17 +39,17 @@ namespace StrengthIgniter.Core.Services.Infrastructure
 
         protected void LogInfo(string message)
         {
-            _Logger.Log(LogType.Info, message);
+            _Logger.Log(LogLevel.Information, message);
         }
 
         protected void LogWarning(string message)
         {
-            _Logger.Log(LogType.Warning, message);
+            _Logger.Log(LogLevel.Warning, message);
         }
 
         protected void LogDebug(string message)
         {
-            _Logger.Log(LogType.Debug, message);
+            _Logger.Log(LogLevel.Debug, message);
         }
 
         #endregion ... Logger Helpers
@@ -106,7 +108,7 @@ namespace StrengthIgniter.Core.Services.Infrastructure
             {
                 message = $"A '{exception.GetType().Name}' exception occured in '{GetServiceName()}.{methodName}'.";
             }
-            _Logger.Log(LogType.Error, message, exception);
+            _Logger.Log(LogLevel.Error, message, exception);
             return new ServiceException(message, exception, methodName, requestObject);
         }
 

@@ -29,7 +29,7 @@ namespace StrengthIgniter.Core.Data
     public class UserDataAccess : DataAccessBase, IUserDataAccess
     {
         #region CTOR
-        public UserDataAccess(Func<IDbConnection> fnGetConnection) : base(fnGetConnection)
+        public UserDataAccess(DatabaseConnectionFactory dbConnectionFactory) : base(dbConnectionFactory.GetConnection)
         {
         }
         #endregion

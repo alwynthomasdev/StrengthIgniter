@@ -1,5 +1,7 @@
 ﻿using CodeFluff.Extensions.IEnumerable;
+using Microsoft.Extensions.Logging;
 using StrengthIgniter.Core.Data;
+using StrengthIgniter.Core.Data.Infrastructure;
 using StrengthIgniter.Core.Models;
 using StrengthIgniter.Core.Services.Infrastructure;
 using StrengthIgniter.Core.Utils;
@@ -22,25 +24,24 @@ namespace StrengthIgniter.Core.Services
     public class PasswordResetService : ServiceBase, IPasswordResetService
     {
         #region CTOR
+        private readonly PasswordResetServiceConfig _Config;
         private readonly IUserDataAccess _UserDal;
         private readonly IHashUtility _HashUtility;
         private readonly IEmailUtility _EmailUtility;
         private readonly ITemplateUtility _TemplateUtility;
-        private readonly PasswordResetServiceConfig _Config;
 
         public PasswordResetService(
+            PasswordResetServiceConfig config,
             IUserDataAccess userDal,
             IHashUtility hashUtility,
             IEmailUtility emailUtility,
             ITemplateUtility templateUtility,
-
-            PasswordResetServiceConfig config,
             //
-            ILogUtility logger,
+            ILoggerFactory loggerFactory,
             IAuditEventDataAccess auditEventDataAccess,
-            Func<IDbConnection> fnGetDbConnection
+            DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDataAccess, logger, fnGetDbConnection)
+            : base(auditEventDataAccess, loggerFactory.CreateLogger(typeof(PasswordResetService)), dbConnectionFactory.GetConnection)
         {
             _UserDal = userDal;
             _HashUtility = hashUtility;

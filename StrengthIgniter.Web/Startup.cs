@@ -8,16 +8,11 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using StrengthIgniter.Core.Services;
 
 namespace StrengthIgniter.Web
 {
-    public class SmtpConfiguration
-    {
-        public string Host { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public int Port { get; set; }
-    }
 
     public class Startup
     {
@@ -29,8 +24,13 @@ namespace StrengthIgniter.Web
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services, ILoggerFactory loggerFactory)
         {
+            services.AddLogging();
+
+            services.AddDatabaseConnectionFactory("");//TODO: get database connection string from config
+            services.AddUtilities(null);//TODO: get email configuration
+
             services.AddControllersWithViews();
         }
 

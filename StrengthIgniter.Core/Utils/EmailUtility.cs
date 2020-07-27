@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CodeFluff.Extensions.IEnumerable;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 
 namespace StrengthIgniter.Core.Utils
@@ -25,7 +26,7 @@ namespace StrengthIgniter.Core.Utils
     public class EmailUtility : IEmailUtility
     {
         private readonly EmailConfiguration _Config;
-        private readonly ILogUtility _Logger;
+        private readonly ILogger _Logger;
 
         /// <summary>
         /// Email service ALL email sending is managed here
@@ -33,12 +34,12 @@ namespace StrengthIgniter.Core.Utils
         /// <param name="Settings">Email settings such as SMTP and default parameters</param>
         public EmailUtility(
             EmailConfiguration config,
-            ILogUtility logger
+            ILoggerFactory loggerFactory
         )
         {
             //CTOR
             _Config = config;
-            _Logger = logger;
+            _Logger = loggerFactory.CreateLogger(typeof(EmailUtility));
         }
 
         public void Send(EmailMessageModel Message)
@@ -55,7 +56,7 @@ namespace StrengthIgniter.Core.Utils
                 throw RaiseSendEmailException(ex, mailMessage);
             }
 
-            _Logger.Log(LogType.Info, $"Email of subject '{Message.Subject}' was sent to recipients: {Message.To.ToCsvString()}");
+            _Logger.Log(LogLevel.Information, $"Email of subject '{Message.Subject}' was sent to recipients: {Message.To.ToCsvString()}");
         }
 
         public async Task SendAsync(EmailMessageModel Message)
@@ -72,7 +73,7 @@ namespace StrengthIgniter.Core.Utils
                 throw RaiseSendEmailException(ex, mailMessage);
             }
 
-            _Logger.Log(LogType.Info, $"Email of subject '{Message.Subject}' was sent to recipients: {Message.To.ToCsvString()}");
+            _Logger.Log(LogLevel.Information, $"Email of subject '{Message.Subject}' was sent to recipients: {Message.To.ToCsvString()}");
         }
 
         #region Private Methods

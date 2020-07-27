@@ -15,7 +15,7 @@ namespace StrengthIgniter.Core.Data
     public class SecurityQuestionDataAccess : DataAccessBase, ISecurityQuestionDataAccess
     {
         #region CTOR
-        public SecurityQuestionDataAccess(Func<IDbConnection> fnGetConnection) : base(fnGetConnection)
+        public SecurityQuestionDataAccess(DatabaseConnectionFactory dbConnectionFactory) : base(dbConnectionFactory.GetConnection)
         {
         }
         #endregion
