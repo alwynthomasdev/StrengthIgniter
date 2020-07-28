@@ -26,7 +26,7 @@ namespace StrengthIgniter.Core.Data
             string sql = @"
 SELECT
     [SecurityQuestionId],
-    [Question]
+    [QuestionText]
 FROM [SecurityQuestion]
 ".Trim();
             #endregion

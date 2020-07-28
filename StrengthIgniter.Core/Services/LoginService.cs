@@ -139,6 +139,7 @@ namespace StrengthIgniter.Core.Services
         {
             string messageBody = _TemplateUtility.Parse(_Config.AccountLockoutEmailTemplatePath, new
             {
+                Subject = _Config.AccountLockoutEmailSubject,
                 Username = user.Name,
                 LockoutMinuets = _Config.LockoutTimeSpanMinuets
             });

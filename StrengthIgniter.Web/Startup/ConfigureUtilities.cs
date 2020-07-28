@@ -21,7 +21,11 @@ namespace StrengthIgniter.Web
         {
             services.TryAddSingleton<IHashUtility>(new HashUtility());
             services.TryAddSingleton<ITemplateUtility>(new TemplateUtility());
-            services.AddEmailUtility(null); //TODO: get email configuration
+
+            EmailConfiguration emailConfiguration = new EmailConfiguration();
+            configuration.Bind("EmailConfiguration", emailConfiguration);
+            services.AddEmailUtility(emailConfiguration); 
+
         }
     }
 }

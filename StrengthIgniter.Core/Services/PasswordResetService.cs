@@ -294,6 +294,7 @@ namespace StrengthIgniter.Core.Services
         {
             string messageBody = _TemplateUtility.Parse(_Config.PasswordResetEmailTemplatePath, new
             {
+                Subject = _Config.PasswordResetEmailSubject,
                 Username = user.Name,
                 Url = url
             });
@@ -312,11 +313,16 @@ namespace StrengthIgniter.Core.Services
 
         private void SendNoAccountFoundEmail(string emailAddress)
         {
+            string messageBody = _TemplateUtility.Parse(_Config.NoAccountFoundTemplatePath, new
+            {
+                Subject = _Config.NoAccountFoundEmailSubject,
+            });
+
             EmailMessageModel msg = new EmailMessageModel
             {
                 To = new string[] { emailAddress },
                 Subject = _Config.NoAccountFoundEmailSubject,
-                Body = _Config.NoAccountFoundTemplatePath,
+                Body = messageBody,
                 IsHtml = true,
             };
             _EmailUtility.Send(msg);

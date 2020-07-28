@@ -19,14 +19,14 @@ namespace StrengthIgniter.Web
     {
         public static void AddDatabaseConnectionFactory(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDatabaseConnectionFactory("");//TODO: get connection string from configuration
+            services.AddDatabaseConnectionFactory(configuration["DatabaseConnectionString"]);
         }
         public static void AddDatabaseConnectionFactory(this IServiceCollection services, string connectionString)
         {
             services.TryAddSingleton<DatabaseConnectionFactory>(new DatabaseConnectionFactory(() => new SqlConnection(connectionString)));
         }
 
-        public static void AddDataAccessServices(this IServiceCollection services)
+        public static void AddDataAccess(this IServiceCollection services)
         {
             services.TryAddTransient<IAuditEventDataAccess, AuditEventDataAccess>();
             services.TryAddTransient<IUserDataAccess, UserDataAccess>();
@@ -35,10 +35,18 @@ namespace StrengthIgniter.Web
 
         public static void AddCoreServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddLoginService(null);//TODO: get configuration
-            services.AddRegistrationService(null);//TODO: get configuration
-            services.AddPasswordResetService(null);//TODO: get configuration
-            services.AddUserSecurityQuestionResetService(null);//TODO: get configuration
+            services.AddDataAccess();
+
+            //get configuration
+            LoginServiceConfig loginServiceConfig = GetLoginServiceConfig(configuration);
+            RegistrationServiceConfig registrationServiceConfig = GetRegistrationServiceConfig(configuration);
+            PasswordResetServiceConfig passwordResetServiceConfig = GetPasswordResetServiceConfig(configuration);
+            UserSecurityQuestionResetServiceConfig userSecurityQuestionResetConfig = GetUserSecurityQuestionResetServiceConfig(configuration);
+
+            services.AddLoginService(loginServiceConfig);
+            services.AddRegistrationService(registrationServiceConfig);
+            services.AddPasswordResetService(passwordResetServiceConfig);
+            services.AddUserSecurityQuestionResetService(userSecurityQuestionResetConfig);
         }
 
         #region Individual services
@@ -97,6 +105,38 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<ILoggerFactory>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()
             ));
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static LoginServiceConfig GetLoginServiceConfig(IConfiguration configuration)
+        {
+            LoginServiceConfig config = new LoginServiceConfig();
+            configuration.Bind("CoreServiceConfiguration:LoginServiceConfig", config);
+            return config;
+        }
+
+        private static RegistrationServiceConfig GetRegistrationServiceConfig(IConfiguration configuration)
+        {
+            RegistrationServiceConfig config = new RegistrationServiceConfig();
+            configuration.Bind("CoreServiceConfiguration:RegistrationServiceConfig", config);
+            return config;
+        }
+
+        private static PasswordResetServiceConfig GetPasswordResetServiceConfig(IConfiguration configuration)
+        {
+            PasswordResetServiceConfig config = new PasswordResetServiceConfig();
+            configuration.Bind("CoreServiceConfiguration:PasswordResetServiceConfig", config);
+            return config;
+        }
+
+        private static UserSecurityQuestionResetServiceConfig GetUserSecurityQuestionResetServiceConfig(IConfiguration configuration)
+        {
+            UserSecurityQuestionResetServiceConfig config = new UserSecurityQuestionResetServiceConfig();
+            configuration.Bind("CoreServiceConfiguration:UserSecurityQuestionResetServiceConfig", config);
+            return config;
         }
 
         #endregion

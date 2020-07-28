@@ -275,6 +275,7 @@ namespace StrengthIgniter.Core.Services
         {
             string messageBody = _TemplateUtility.Parse(_Config.RegistrationEmailTemplatePath, new
             {
+                Subject = _Config.RegistrationEmailSubject,
                 Username = user.Name,
                 Url = url
             });
@@ -295,6 +296,7 @@ namespace StrengthIgniter.Core.Services
         {
             string messageBody = _TemplateUtility.Parse(_Config.AccountExistsEmailTemplatePath, new
             {
+                Subject = _Config.AccountExistsEmailSubject,
                 Username = user.Name,
             });
 
