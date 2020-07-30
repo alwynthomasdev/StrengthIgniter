@@ -148,7 +148,7 @@ namespace StrengthIgniter.Core.Services
             {
                 throw new Exception($"No security question found with id '{securityQuestionId}'.");
             }
-            return securityQuestion.Question;
+            return securityQuestion.QuestionText;
         }
 
         private SecurityQuestionModel GetSecurityQuestionById(int id)

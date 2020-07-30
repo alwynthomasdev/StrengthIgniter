@@ -26,12 +26,14 @@ namespace StrengthIgniter.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddLogging();
 
             services.AddDatabaseConnectionFactory(Configuration["DatabaseConnectionString"]);
-            services.AddUtilities(Configuration);
-            services.AddCoreServices(Configuration);
+
+            services.AddConfigurationOptions(Configuration);
+
+            services.AddUtilities();
+            services.AddCoreServices();
 
             services.AddControllersWithViews();
         }

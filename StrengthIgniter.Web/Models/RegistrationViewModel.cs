@@ -4,12 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Permissions;
 using System.Threading.Tasks;
 
 namespace StrengthIgniter.Web.Models
 {
     public class RegistrationViewModel
     {
+
         [Required]
         [Display(Name="Name")]
         public string Name { get; set; }
@@ -26,10 +28,14 @@ namespace StrengthIgniter.Web.Models
         [Compare("Password", ErrorMessage = "Passwords Must Match")]
         public string ConfirmPassword { get; set; }
 
-        [Display(Name="Security Question")]
         public IEnumerable<SelectListItem> SecurityQuestions { get; set; }
-
-        public IEnumerable<int> SecurityQuestionIds { get; set; }
+       
+        [Required]
+        [Display(Name="Security Question")]
+        public string SecurityQuestion { get; set; }
+        [Required]
+        [Display(Name="Security Question Answer")]
+        public string SecurityQuestionAnswer { get; set; }
 
     }
 }

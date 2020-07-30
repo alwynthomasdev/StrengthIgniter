@@ -9,13 +9,15 @@ namespace StrengthIgniter.Core.Models
     public class SecurityQuestionModel
     {
         public int SecurityQuestionId { get; internal set; }
-        public string Question { get; internal set; }
+        public string QuestionText { get; internal set; }
     }
 
     //used for registration and user security question reset
     public class SecurityQuestionAnswerModel
     {
+        [Obsolete]//TODO: switch to question text
         public int SecurityQuestionId { get; set; }
+        public string QuestionText { get; set; }
         public string Answer { get; set; }
 
         public Guid? Reference { get; set; }
@@ -24,9 +26,9 @@ namespace StrengthIgniter.Core.Models
     {
         public SecurityQuestionAnswerModelValidator(int securityQuestionAnswerMinLength, int securityQuestionAnswerMaxLength)
         {
-            RuleFor(x => x.SecurityQuestionId)
-                .NotEqual(0)
-                .WithMessage("Security question id is required.");
+            RuleFor(x => x.QuestionText)
+                .NotEmpty()
+                .WithMessage("Security question is required.");
 
             RuleFor(x => x.Answer)
                 .NotEmpty()

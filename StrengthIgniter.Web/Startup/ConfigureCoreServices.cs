@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using StrengthIgniter.Core.Data;
 using StrengthIgniter.Core.Data.Infrastructure;
 using StrengthIgniter.Core.Services;
@@ -33,28 +34,22 @@ namespace StrengthIgniter.Web
             services.TryAddTransient<ISecurityQuestionDataAccess, SecurityQuestionDataAccess>();
         }
 
-        public static void AddCoreServices(this IServiceCollection services, IConfiguration configuration)
+        public static void AddCoreServices(this IServiceCollection services)
         {
             services.AddDataAccess();
 
-            //get configuration
-            LoginServiceConfig loginServiceConfig = GetLoginServiceConfig(configuration);
-            RegistrationServiceConfig registrationServiceConfig = GetRegistrationServiceConfig(configuration);
-            PasswordResetServiceConfig passwordResetServiceConfig = GetPasswordResetServiceConfig(configuration);
-            UserSecurityQuestionResetServiceConfig userSecurityQuestionResetConfig = GetUserSecurityQuestionResetServiceConfig(configuration);
-
-            services.AddLoginService(loginServiceConfig);
-            services.AddRegistrationService(registrationServiceConfig);
-            services.AddPasswordResetService(passwordResetServiceConfig);
-            services.AddUserSecurityQuestionResetService(userSecurityQuestionResetConfig);
+            services.AddLoginService();
+            services.AddRegistrationService();
+            services.AddPasswordResetService();
+            services.AddUserSecurityQuestionResetService();
         }
 
         #region Individual services
 
-        public static void AddLoginService(this IServiceCollection services, LoginServiceConfig configuration)
+        public static void AddLoginService(this IServiceCollection services)
         {
             services.TryAddTransient<ILoginService>(sp => new LoginService(
-                configuration,
+                sp.GetRequiredService<IOptions<LoginServiceConfig>>().Value,
                 sp.GetRequiredService<IUserDataAccess>(),
                 sp.GetRequiredService<IHashUtility>(),
                 sp.GetRequiredService<IEmailUtility>(),
@@ -65,10 +60,10 @@ namespace StrengthIgniter.Web
             ));
         }
 
-        public static void AddRegistrationService(this IServiceCollection services, RegistrationServiceConfig configuration)
+        public static void AddRegistrationService(this IServiceCollection services)
         {
             services.TryAddTransient<IRegistrationService>(sp => new RegistrationService(
-                configuration,
+                sp.GetRequiredService<IOptions<RegistrationServiceConfig>>().Value,
                 sp.GetRequiredService<IUserDataAccess>(),
                 sp.GetRequiredService<ISecurityQuestionDataAccess>(),
                 sp.GetRequiredService<IHashUtility>(),
@@ -80,10 +75,10 @@ namespace StrengthIgniter.Web
             ));
         }
 
-        public static void AddPasswordResetService(this IServiceCollection services, PasswordResetServiceConfig configuration)
+        public static void AddPasswordResetService(this IServiceCollection services)
         {
             services.TryAddTransient<IPasswordResetService>(sp => new PasswordResetService(
-                configuration,
+                sp.GetRequiredService<IOptions<PasswordResetServiceConfig>>().Value,
                 sp.GetRequiredService<IUserDataAccess>(),
                 sp.GetRequiredService<IHashUtility>(),
                 sp.GetRequiredService<IEmailUtility>(),
@@ -94,10 +89,10 @@ namespace StrengthIgniter.Web
             ));
         }
 
-        public static void AddUserSecurityQuestionResetService(this IServiceCollection services, UserSecurityQuestionResetServiceConfig configuration)
+        public static void AddUserSecurityQuestionResetService(this IServiceCollection services)
         {
             services.TryAddTransient<IUserSecurityQuestionResetService>(sp => new UserSecurityQuestionResetService(
-                configuration,
+                sp.GetRequiredService<IOptions<UserSecurityQuestionResetServiceConfig>>().Value,
                 sp.GetRequiredService<IUserDataAccess>(),
                 sp.GetRequiredService<ISecurityQuestionDataAccess>(),
                 sp.GetRequiredService<IHashUtility>(),

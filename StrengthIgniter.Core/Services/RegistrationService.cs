@@ -252,7 +252,7 @@ namespace StrengthIgniter.Core.Services
                 {
                     Reference = Guid.NewGuid(),
                     AnswerHash = _HashUtility.Generate(qa.Answer),
-                    QuestionText = securityQuestion.Question,
+                    QuestionText = securityQuestion.QuestionText,
                 });
             }
             newUser.SecurityQuestions = userSecretQuestionAnswers;
