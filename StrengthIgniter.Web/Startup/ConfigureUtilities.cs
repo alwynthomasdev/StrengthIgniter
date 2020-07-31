@@ -13,6 +13,10 @@ namespace StrengthIgniter.Web
 {
     public static class ConfigureUtilities
     {
+        public static void AddContentRootPath(this IServiceCollection services, string path)
+        {
+            services.TryAddSingleton<ContentRootPathFactory>(new ContentRootPathFactory(() => path));
+        }
 
         public static void AddUtilities(this IServiceCollection services)
         {
@@ -21,8 +25,18 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<ILoggerFactory>()
             ));
             services.TryAddSingleton<IHashUtility>(new HashUtility());
-            services.TryAddSingleton<ITemplateUtility>(new TemplateUtility());
+            services.TryAddSingleton<ITemplateUtility>(sp => new TemplateUtility(sp.GetRequiredService<ContentRootPathFactory>().GetPath()));
 
         }
     }
+
+    public class ContentRootPathFactory
+    {
+        public Func<string> GetPath;
+        public ContentRootPathFactory(Func<string> fnGetPath)
+        {
+            GetPath = fnGetPath;
+        }
+    }
+
 }

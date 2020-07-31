@@ -18,10 +18,6 @@ namespace StrengthIgniter.Web
 {
     public static class ConfigureCoreServicesExtentions
     {
-        public static void AddDatabaseConnectionFactory(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddDatabaseConnectionFactory(configuration["DatabaseConnectionString"]);
-        }
         public static void AddDatabaseConnectionFactory(this IServiceCollection services, string connectionString)
         {
             services.TryAddSingleton<DatabaseConnectionFactory>(new DatabaseConnectionFactory(() => new SqlConnection(connectionString)));

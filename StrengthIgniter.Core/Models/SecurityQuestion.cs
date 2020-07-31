@@ -15,12 +15,12 @@ namespace StrengthIgniter.Core.Models
     //used for registration and user security question reset
     public class SecurityQuestionAnswerModel
     {
-        [Obsolete]//TODO: switch to question text
-        public int SecurityQuestionId { get; set; }
+        //[Obsolete]//TODO: switch to question text
+        //public int SecurityQuestionId { get; set; }
         public string QuestionText { get; set; }
         public string Answer { get; set; }
 
-        public Guid? Reference { get; set; }
+        public Guid? Reference { get; internal set; }
     }
     public class SecurityQuestionAnswerModelValidator : AbstractValidator<SecurityQuestionAnswerModel>
     {

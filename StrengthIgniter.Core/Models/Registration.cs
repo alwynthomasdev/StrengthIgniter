@@ -15,7 +15,7 @@ namespace StrengthIgniter.Core.Models
 
     public class RegistrationModelValidatorConfig
     {
-        public int PassswordMinLength { get; set; }
+        public int PasswordMinLength { get; set; }
         public int PasswordMaxLength { get; set; }
         public int NumberOfSecurityQuestionsRequired { get; set; }
         public int SecurityQuestionAnswerMinLength { get; set; }
@@ -38,8 +38,8 @@ namespace StrengthIgniter.Core.Models
 
             RuleFor(x => x.Password)
                 .NotEmpty()
-                .Length(validatorConfig.PassswordMinLength, validatorConfig.PasswordMaxLength)
-                .WithMessage($"Password must be between {validatorConfig.PassswordMinLength} and {validatorConfig.PasswordMaxLength} characters.");
+                .Length(validatorConfig.PasswordMinLength, validatorConfig.PasswordMaxLength)
+                .WithMessage($"Password must be between {validatorConfig.PasswordMinLength} and {validatorConfig.PasswordMaxLength} characters.");
 
             RuleFor(x => x.SecurityQuestionAnswers)
                 .Must(x => x.Count == validatorConfig.NumberOfSecurityQuestionsRequired)

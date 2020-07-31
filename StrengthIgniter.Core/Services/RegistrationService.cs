@@ -72,6 +72,7 @@ namespace StrengthIgniter.Core.Services
 
                     using (IDbConnection dbConnection = GetConnection())
                     {
+                        dbConnection.Open();
                         using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                         {
                             int newUserId = _UserDal.CreateNewUser(dbConnection, dbTransaction, user);
@@ -119,6 +120,7 @@ namespace StrengthIgniter.Core.Services
                         {
                             using (IDbConnection dbConnection = GetConnection())
                             {
+                                dbConnection.Open();
                                 using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                                 {
                                     _UserDal.UpdateRegistrationValidated(dbConnection, dbTransaction, user.UserId);
@@ -164,6 +166,7 @@ namespace StrengthIgniter.Core.Services
 
                         using (IDbConnection dbConnection = GetConnection())
                         {
+                            dbConnection.Open();
                             using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                             {
                                 _UserDal.CreateUserToken(dbConnection, dbTransaction, user.Reference, token);
@@ -206,7 +209,7 @@ namespace StrengthIgniter.Core.Services
         {
             RegistrationModelValidatorConfig config = new RegistrationModelValidatorConfig
             {
-                PassswordMinLength = _Config.PasswordMaxLength,
+                PasswordMinLength = _Config.PasswordMinLength,
                 PasswordMaxLength = _Config.PasswordMaxLength,
                 NumberOfSecurityQuestionsRequired = _Config.NumberOfSecretQuestionsRequired,
                 SecurityQuestionAnswerMinLength = _Config.SecretQuestionAnswerMinLength,
@@ -214,19 +217,19 @@ namespace StrengthIgniter.Core.Services
             };
             RegistrationModelValidator validatior = new RegistrationModelValidator(config);
             validatior.ValidateAndThrow(model);
-            ValidateSsecurityQuestionIds(model.SecurityQuestionAnswers);
+            //ValidateSsecurityQuestionIds(model.SecurityQuestionAnswers);
         }
-        private void ValidateSsecurityQuestionIds(IEnumerable<SecurityQuestionAnswerModel> securityQuestionAnswers)
-        {
-            foreach (SecurityQuestionAnswerModel securityQuestionAnswer in securityQuestionAnswers)
-            {
-                SecurityQuestionModel securityQuestion = GetSecurityQuestionById(securityQuestionAnswer.SecurityQuestionId);
-                if (securityQuestion == null)
-                {
-                    throw new ValidationException($"No security question found with id '{securityQuestionAnswer.SecurityQuestionId}'.");
-                }
-            }
-        }
+        //private void ValidateSsecurityQuestionIds(IEnumerable<SecurityQuestionAnswerModel> securityQuestionAnswers)
+        //{
+        //    foreach (SecurityQuestionAnswerModel securityQuestionAnswer in securityQuestionAnswers)
+        //    {
+        //        SecurityQuestionModel securityQuestion = GetSecurityQuestionById(securityQuestionAnswer.SecurityQuestionId);
+        //        if (securityQuestion == null)
+        //        {
+        //            throw new ValidationException($"No security question found with id '{securityQuestionAnswer.SecurityQuestionId}'.");
+        //        }
+        //    }
+        //}
 
         private UserModel ConvertRegistrationToUser(RegistrationModel registration)
         {
@@ -242,17 +245,18 @@ namespace StrengthIgniter.Core.Services
             List<UserSecurityQuestionAnswerModel> userSecretQuestionAnswers = new List<UserSecurityQuestionAnswerModel>();
             foreach (SecurityQuestionAnswerModel qa in registration.SecurityQuestionAnswers)
             {
-                SecurityQuestionModel securityQuestion = GetSecurityQuestionById(qa.SecurityQuestionId);
-                if (securityQuestion == null)
-                {
-                    throw new Exception($"No security question found with id '{qa.SecurityQuestionId}'.");
-                }
+                //SecurityQuestionModel securityQuestion = GetSecurityQuestionById(qa.SecurityQuestionId);
+                //if (securityQuestion == null)
+                //{
+                //    throw new Exception($"No security question found with id '{qa.SecurityQuestionId}'.");
+                //}
 
                 userSecretQuestionAnswers.Add(new UserSecurityQuestionAnswerModel
                 {
                     Reference = Guid.NewGuid(),
                     AnswerHash = _HashUtility.Generate(qa.Answer),
-                    QuestionText = securityQuestion.QuestionText,
+                    QuestionText = qa.QuestionText
+                    //QuestionText = securityQuestion.QuestionText
                 });
             }
             newUser.SecurityQuestions = userSecretQuestionAnswers;
@@ -326,7 +330,7 @@ namespace StrengthIgniter.Core.Services
     public class RegistrationServiceConfig
     {
         //validation config
-        public int PassswordMinLength { get; set; }
+        public int PasswordMinLength { get; set; }
         public int PasswordMaxLength { get; set; }
         public int NumberOfSecretQuestionsRequired { get; set; }
         public int SecretQuestionAnswerMinLength { get; set; }

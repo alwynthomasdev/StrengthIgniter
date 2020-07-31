@@ -91,7 +91,8 @@ namespace StrengthIgniter.Core.Services
                                 UserSecurityQuestionAnswerModel userSecurityQuestionAnswerModel = new UserSecurityQuestionAnswerModel
                                 {
                                     Reference = question.Reference.Value,
-                                    QuestionText = GetSecurityQuestionTextById(question.SecurityQuestionId),
+                                    //QuestionText = GetSecurityQuestionTextById(question.SecurityQuestionId),
+                                    QuestionText = question.QuestionText,
                                     AnswerHash = _HashUtility.Generate(question.Answer),
                                     FailedAnswerAttemptCount = null
                                 };

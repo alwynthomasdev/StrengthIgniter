@@ -6,6 +6,7 @@ using CodeFluff.Extensions.IEnumerable;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using StrengthIgniter.Core.Models;
 using StrengthIgniter.Core.Services;
 using StrengthIgniter.Web.Models;
 
@@ -41,6 +42,27 @@ namespace StrengthIgniter.Web.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult Login(LoginViewModel vm)
+        {
+            if(ModelState.IsValid)
+            {
+                LoginResponse response = _LoginService.Login(new LoginRequest
+                {
+                    EmailAddress = vm.EmailAddress,
+                    Password = vm.Password
+                });
+
+                if(response.ResponseType > 0)
+                {
+                    //TODO: create auth cookie
+                    //TODO: redirect
+                }
+                else vm.LoginAttemptFailed = true;
+            }
+            return View(vm);
+        }
+
         public IActionResult Register()
         {
             RegistrationViewModel vm = new RegistrationViewModel();
@@ -52,6 +74,19 @@ namespace StrengthIgniter.Web.Controllers
         [HttpPost]
         public IActionResult Register(RegistrationViewModel vm)
         {
+            if(ModelState.IsValid)
+            {
+                RegistrationResponseType response = _RegistrationService.Register(new RegistrationModel
+                {
+                    Name = vm.Name,
+                    EmailAddress = vm.EmailAddress,
+                    Password = vm.Password,
+                    SecurityQuestionAnswers = new List<SecurityQuestionAnswerModel> { 
+                        new SecurityQuestionAnswerModel { QuestionText = vm.SecurityQuestion, Answer = vm.SecurityQuestionAnswer } 
+                    }//TODO: multiple security questiosn
+                });
+                return View("RegisterComplete");
+            }
             vm.SecurityQuestions = GetSecretQuestionSelectList();//re-get this
             return View(vm);
         }

@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using StrengthIgniter.Core.Data.Infrastructure;
+using CodeFluff.Extensions.IEnumerable;
 
 namespace StrengthIgniter.Core.Data
 {
@@ -27,6 +28,7 @@ namespace StrengthIgniter.Core.Data
         {
             using (var con = GetConnection())
             {
+                con.Open();
                 using (var trn = con.BeginTransaction())
                 {
                     return InsertAuditEvent(con, trn, auditEvent);
@@ -64,7 +66,10 @@ SELECT SCOPE_IDENTITY()
                 {
                     throw new Exception("Failed to create audit event.");
                 }
-                InsertAuditEventItems(connection, transaction, aid.Value, auditEvent.Items);
+                if(auditEvent.Items.HasItems())
+                {
+                    InsertAuditEventItems(connection, transaction, aid.Value, auditEvent.Items);
+                }
                 return aid.Value;
             }
             catch (DataAccessException)

@@ -242,7 +242,8 @@ VALUES
     ,@PasswordHash
     ,@UserTypeCode
     ,@RegisteredDateTimeUtc);
-".Trim();
+
+SELECT SCOPE_IDENTITY()".Trim();
             #endregion
 
             try
@@ -313,7 +314,7 @@ VALUES
 
             try
             {
-                con.Execute(sql, question, transaction);
+                con.Execute(sql, parameters, transaction);
             }
             catch (Exception ex)
             {

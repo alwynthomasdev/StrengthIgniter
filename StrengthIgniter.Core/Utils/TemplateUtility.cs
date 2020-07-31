@@ -1,6 +1,8 @@
 ﻿using HandlebarsDotNet;
+using Org.BouncyCastle.Crypto.Tls;
 using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace StrengthIgniter.Core.Utils
 {
@@ -11,6 +13,13 @@ namespace StrengthIgniter.Core.Utils
 
     public class TemplateUtility : ITemplateUtility
     {
+
+        private readonly string _RootPath;
+        public TemplateUtility(string rootPath)
+        {
+            _RootPath = rootPath;
+        }
+
         public string Parse(string templatePath, object model)
         {
             string template = ReadTemplate(templatePath);
@@ -21,11 +30,13 @@ namespace StrengthIgniter.Core.Utils
 
         private string ReadTemplate(string templatePath)
         {
-            if (File.Exists(templatePath))
+            string fullPath = string.Concat(_RootPath, templatePath);
+
+            if (File.Exists(fullPath))
             {
-                return File.ReadAllText(templatePath);
+                return File.ReadAllText(fullPath);
             }
-            else throw new FileNotFoundException(string.Format("Could not find template at path '{0}'", templatePath));
+            else throw new FileNotFoundException(string.Format("Could not find template at path '{0}'", fullPath));
         }
 
     }

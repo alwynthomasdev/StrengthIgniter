@@ -10,7 +10,7 @@ namespace StrengthIgniter.Core.Models
         public Guid Reference { get; internal set; }
         public string Name { get; set; }
         public string EmailAddress { get; set; }
-        internal string PasswordHash { get; set; }
+        public string PasswordHash { get; internal set; }
         public UserType UserTypeCode { get; set; }
         public DateTime? LastLoginDateTimeUtc { get; internal set; }
         public DateTime? LockoutEndDateTimeUtc { get; internal set; }
@@ -26,7 +26,7 @@ namespace StrengthIgniter.Core.Models
     {
         public Guid Reference { get; internal set; }
         public string QuestionText { get; set; }
-        internal string AnswerHash { get; set; }
+        public string AnswerHash { get; internal set; }
         public int? FailedAnswerAttemptCount { get; internal set; }
     }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using StrengthIgniter.Core.Models;
+using StrengthIgniter.Web.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -22,6 +23,8 @@ namespace StrengthIgniter.Web.Models
 
         [Required]
         [Display(Name="Password")]
+        [ConfigurableMinLength("CoreServiceConfiguration:RegistrationServiceConfig:PassswordMinLength")]
+        [ConfigurableMaxLength("CoreServiceConfiguration:RegistrationServiceConfig:PasswordMaxLength")]
         public string Password { get; set; }
 
         [Display(Name= "Confirm Password")]
@@ -35,6 +38,8 @@ namespace StrengthIgniter.Web.Models
         public string SecurityQuestion { get; set; }
         [Required]
         [Display(Name="Security Question Answer")]
+        [ConfigurableMinLength("CoreServiceConfiguration:RegistrationServiceConfig:SecretQuestionAnswerMinLength")]
+        [ConfigurableMaxLength("CoreServiceConfiguration:RegistrationServiceConfig:SecretQuestionAnswerMaxLength")]
         public string SecurityQuestionAnswer { get; set; }
 
     }

@@ -68,6 +68,7 @@ namespace StrengthIgniter.Core.Services
 
                         using (IDbConnection dbConnection = GetConnection())
                         {
+                            dbConnection.Open();
                             using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                             {
                                 if (passwordIsValid)

@@ -11,7 +11,4 @@
   <ItemGroup>
     <ProjectReference Include="..\StrengthIgniter.Core\StrengthIgniter.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Attributes\" />
-  </ItemGroup>
 </Project>
