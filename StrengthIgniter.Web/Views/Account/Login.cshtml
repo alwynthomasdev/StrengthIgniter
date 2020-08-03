@@ -13,8 +13,18 @@
             <label asp-for="Password"></label>
             <input asp-for="Password" type="password" class="form-control" placeholder="Password">
         </div>
-        <div class="form-group text-right">
-            <a href="#" class="">Forgot your password?</a>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" type="checkbox" class="form-check-input">
+                        <label asp-for="RememberMe" class="form-check-label" ></label>
+                    </div>
+                </div>
+                <div class="col-7 text-right">
+                    <a href="#" class="">Forgot your password?</a>
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <button type="submit" class="btn btn-primary btn-lg w-100">Login</button>

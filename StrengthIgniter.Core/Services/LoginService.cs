@@ -77,7 +77,14 @@ namespace StrengthIgniter.Core.Services
                                     user.LockoutEndDateTimeUtc = null;
                                     user.LastLoginDateTimeUtc = DateTime.UtcNow;
 
-                                    response = new LoginResponse { ResponseType = LoginResponseType.Success, UserReference = user.Reference };
+                                    response = new LoginResponse { 
+                                        ResponseType = LoginResponseType.Success, 
+                                        UserReference = user.Reference,
+                                        Name = user.Name,
+                                        UserType = user.UserTypeCode,
+                                        EmailAddress = user.EmailAddress
+                                    };
+
                                     CreateAuditEvent(AuditEventType.LoginSuccess, user.UserId, "", null);
                                 }
                                 else// password is not valid
@@ -183,6 +190,9 @@ namespace StrengthIgniter.Core.Services
         //TODO: return relevant login data
         public LoginResponseType ResponseType { get; internal set; }
         public Guid UserReference { get; internal set; }
+        public string Name { get; internal set; }
+        public string EmailAddress { get; internal set; }
+        public UserType UserType { get; set; }
     }
 
     public enum LoginResponseType

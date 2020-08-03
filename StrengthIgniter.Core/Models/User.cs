@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HandlebarsDotNet;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -40,7 +41,8 @@ namespace StrengthIgniter.Core.Models
 
     public enum UserType
     {
-        Basic = 1
+        [Description("Basic")]
+        Basic = 0
     }
 
 }

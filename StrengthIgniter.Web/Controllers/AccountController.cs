@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using CodeFluff.Extensions.IEnumerable;
+using CodeFluff.Extensions.Object;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -37,13 +42,15 @@ namespace StrengthIgniter.Web.Controllers
             return View();
         }
 
-        public IActionResult Login()
+        [AllowAnonymous]
+        public IActionResult Login(string returnUrl = "/")
         {
-            return View();
+            return View(new LoginViewModel { ReturnUrl = returnUrl });
         }
 
         [HttpPost]
-        public IActionResult Login(LoginViewModel vm)
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(LoginViewModel vm)
         {
             if(ModelState.IsValid)
             {
@@ -56,13 +63,37 @@ namespace StrengthIgniter.Web.Controllers
                 if(response.ResponseType > 0)
                 {
                     //TODO: create auth cookie
-                    //TODO: redirect
+
+                    Claim[] claims = new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, response.UserReference.ToString()),
+                        new Claim(ClaimTypes.Name, response.Name),
+                        new Claim(ClaimTypes.Email, response.EmailAddress),
+                        new Claim(ClaimTypes.Role, response.UserType.GetDescription())
+                    };
+
+                    ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+
+                    //await HttpContext.SignInAsync(
+                    //    CookieAuthenticationDefaults.AuthenticationScheme,
+                    //    principal,
+                    //    new AuthenticationProperties( { IsPersistent = vm.RememberMe } ));
+
+                    return LocalRedirect(vm.ReturnUrl);
                 }
                 else vm.LoginAttemptFailed = true;
             }
             return View(vm);
         }
 
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Redirect("/");
+        }
+
+        [AllowAnonymous]
         public IActionResult Register()
         {
             RegistrationViewModel vm = new RegistrationViewModel();
@@ -72,6 +103,7 @@ namespace StrengthIgniter.Web.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult Register(RegistrationViewModel vm)
         {
             if(ModelState.IsValid)

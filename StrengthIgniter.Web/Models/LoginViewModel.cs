@@ -12,6 +12,10 @@ namespace StrengthIgniter.Web.Models
         public string EmailAddress { get; set; }
         [Display(Name ="Password")]
         public string Password { get; set; }
+        [Display(Name ="Remeber Me")]
+        public bool RememberMe { get; set; }
+
+        public string ReturnUrl { get; set; }
 
         public bool LoginAttemptFailed { get; set; }
     }

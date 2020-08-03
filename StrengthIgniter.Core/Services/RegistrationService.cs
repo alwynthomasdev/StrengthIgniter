@@ -239,7 +239,8 @@ namespace StrengthIgniter.Core.Services
                 Name = registration.Name,
                 EmailAddress = registration.EmailAddress,
                 PasswordHash = _HashUtility.Generate(registration.Password),
-                RegisteredDateTimeUtc = DateTime.UtcNow
+                RegisteredDateTimeUtc = DateTime.UtcNow,
+                UserTypeCode = 0//default/basic user
             };
 
             List<UserSecurityQuestionAnswerModel> userSecretQuestionAnswers = new List<UserSecurityQuestionAnswerModel>();
