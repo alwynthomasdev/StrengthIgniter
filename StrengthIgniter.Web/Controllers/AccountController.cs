@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Configuration;
 using StrengthIgniter.Core.Models;
 using StrengthIgniter.Core.Services;
@@ -62,24 +63,7 @@ namespace StrengthIgniter.Web.Controllers
 
                 if(response.ResponseType > 0)
                 {
-                    //TODO: create auth cookie
-
-                    Claim[] claims = new Claim[]
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, response.UserReference.ToString()),
-                        new Claim(ClaimTypes.Name, response.Name),
-                        new Claim(ClaimTypes.Email, response.EmailAddress),
-                        new Claim(ClaimTypes.Role, response.UserType.GetDescription())
-                    };
-
-                    ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
-
-                    //await HttpContext.SignInAsync(
-                    //    CookieAuthenticationDefaults.AuthenticationScheme,
-                    //    principal,
-                    //    new AuthenticationProperties( { IsPersistent = vm.RememberMe } ));
-
+                    await SignInAsync(response);
                     return LocalRedirect(vm.ReturnUrl);
                 }
                 else vm.LoginAttemptFailed = true;
@@ -87,6 +71,7 @@ namespace StrengthIgniter.Web.Controllers
             return View(vm);
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -124,6 +109,30 @@ namespace StrengthIgniter.Web.Controllers
         }
 
         #region Private methods
+
+        private IEnumerable<Claim> CreateClaims(LoginResponse loginResponse)
+        {
+            return new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, loginResponse.UserReference.ToString()),
+                new Claim(ClaimTypes.Name, loginResponse.Name),
+                new Claim(ClaimTypes.Email, loginResponse.EmailAddress),
+                new Claim(ClaimTypes.Role, loginResponse.UserType.GetDescription())
+            };
+        }
+
+        private async Task SignInAsync(LoginResponse loginResponse, bool isPersistent = false)
+        {
+            IEnumerable<Claim> claims = CreateClaims(loginResponse);
+            ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties() { IsPersistent = isPersistent } 
+            );
+        }
 
         private IEnumerable<SelectListItem> GetSecretQuestionSelectList()
         {
