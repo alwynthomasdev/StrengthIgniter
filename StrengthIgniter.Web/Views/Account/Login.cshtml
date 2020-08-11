@@ -5,6 +5,7 @@
 }
 
     <form asp-action="login" method="post">
+        <input asp-for="ReturnUrl" type="hidden" />
         <div class="form-group">
             <label asp-for="EmailAddress"></label>
             <input asp-for="EmailAddress" type="text" class="form-control" aria-describedby="emailHelp" placeholder="Enter email">
@@ -22,7 +23,7 @@
                     </div>
                 </div>
                 <div class="col-7 text-right">
-                    <a href="#" class="">Forgot your password?</a>
+                    <a asp-action="ForgotPassword" class="">Forgot your password?</a>
                 </div>
             </div>
         </div>

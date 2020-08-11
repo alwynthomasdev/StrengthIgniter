@@ -421,7 +421,7 @@ WHERE [UserId] = @UserId
         {
             #region SQL
             string sql = @"
-UPDATE [FailedAnswerAttemptCount] SET
+UPDATE [UserSecurityQuestionAnswer] SET
     [FailedAnswerAttemptCount] = @FailedAnswerAttemptCount
 WHERE [UserId] = @UserId
 ".Trim();

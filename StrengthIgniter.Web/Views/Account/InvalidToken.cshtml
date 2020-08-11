@@ -1,0 +1,8 @@
+﻿@model InvalidTokenViewModel
+@{
+    Layout = "~/Views/Shared/_ExtLayout.cshtml";
+    ViewBag.Title = Model.PageTitle;
+}
+<p class="text-center">
+    @Model.Message Click here to proceed to the <a asp-action="login">Sign-In</a> page.
+</p>

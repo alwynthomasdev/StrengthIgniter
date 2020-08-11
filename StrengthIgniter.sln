@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StrengthIgniter.Core", "StrengthIgniter.Core\StrengthIgniter.Core.csproj", "{5231873C-B6F8-440F-802E-A9A9B08BC920}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrengthIgniter.Web", "StrengthIgniter.Web\StrengthIgniter.Web.csproj", "{D33CAB71-CD3D-4B47-8CEF-9A0D9CEA42A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StrengthIgniter.Web", "StrengthIgniter.Web\StrengthIgniter.Web.csproj", "{D33CAB71-CD3D-4B47-8CEF-9A0D9CEA42A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

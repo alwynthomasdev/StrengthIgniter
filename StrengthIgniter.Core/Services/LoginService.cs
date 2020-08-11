@@ -59,6 +59,7 @@ namespace StrengthIgniter.Core.Services
                     if (!user.IsRegistrationValidated)
                     {
                         return new LoginResponse { ResponseType = LoginResponseType.AccountNotValidated };
+                        //TODO: possibly send an email, reminding user to validate email, possibly resend validation email...
                     }
 
                     if (!UserAccountIsLockedOut(user))

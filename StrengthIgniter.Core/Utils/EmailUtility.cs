@@ -44,43 +44,51 @@ namespace StrengthIgniter.Core.Utils
 
         public void Send(EmailMessageModel Message)
         {
-            var mailMessage = BuildEmail(Message);
-
-            try
+            MimeMessage mailMessage = BuildEmail(Message);
+            if (mailMessage != null)
             {
-                using (var client = CreateClient())
-                    client.Send(mailMessage);
-            }
-            catch (Exception ex)
-            {
-                throw RaiseSendEmailException(ex, mailMessage);
-            }
+                try
+                {
+                    using (var client = CreateClient())
+                        client.Send(mailMessage);
+                }
+                catch (Exception ex)
+                {
+                    throw RaiseSendEmailException(ex, mailMessage);
+                }
 
-            _Logger.Log(LogLevel.Information, $"Email of subject '{Message.Subject}' was sent to recipients: {Message.To.ToCsvString()}");
+                LogMessagesSend(Message);
+            }
+            //else no messages to send
         }
 
         public async Task SendAsync(EmailMessageModel Message)
         {
-            var mailMessage = BuildEmail(Message);
-
-            try
+            MimeMessage mailMessage = BuildEmail(Message);
+            if (mailMessage != null)
             {
-                using (var client = await CreateClientAsync())
-                    await client.SendAsync(mailMessage);
-            }
-            catch (Exception ex)
-            {
-                throw RaiseSendEmailException(ex, mailMessage);
-            }
+                try
+                {
+                    using (SmtpClient client = await CreateClientAsync())
+                    {
+                        await client.SendAsync(mailMessage);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw RaiseSendEmailException(ex, mailMessage);
+                }
 
-            _Logger.Log(LogLevel.Information, $"Email of subject '{Message.Subject}' was sent to recipients: {Message.To.ToCsvString()}");
+                LogMessagesSend(Message);
+            }
+            //else no messages to send
         }
 
         #region Private Methods
 
         private async Task<SmtpClient> CreateClientAsync()
         {
-            var smtpClient = new SmtpClient();
+            SmtpClient smtpClient = new SmtpClient();
             await smtpClient.ConnectAsync(_Config.SmtpHost, _Config.SmtpPort);
             await smtpClient.AuthenticateAsync(new NetworkCredential() { UserName = this._Config.SmtpUsername, Password = this._Config.SmtpPassword });
 
@@ -88,7 +96,7 @@ namespace StrengthIgniter.Core.Utils
         }
         private SmtpClient CreateClient()
         {
-            var smtpClient = new SmtpClient();
+            SmtpClient smtpClient = new SmtpClient();
             smtpClient.Connect(_Config.SmtpHost, _Config.SmtpPort);
             smtpClient.Authenticate(new NetworkCredential() { UserName = this._Config.SmtpUsername, Password = this._Config.SmtpPassword });
 
@@ -108,7 +116,20 @@ namespace StrengthIgniter.Core.Utils
             var eMail = new MimeMessage();
 
             foreach (string email in msg.To)
-                eMail.To.Add(new MailboxAddress(email));
+            {
+                if (EmailValidation.EmailValidator.Validate(email))
+                {
+                    eMail.To.Add(new MailboxAddress(email));
+                }
+                //else log that email was not sent due to bad address ???
+            }
+            if(!eMail.To.HasItems())
+            {
+                //no recipients
+                //TODO: log this ? throw exception ?
+                return null;
+            }
+
             eMail.From.Add(new MailboxAddress(msg.FromName, msg.From));
 
             eMail.Subject = msg.From;
@@ -124,6 +145,11 @@ namespace StrengthIgniter.Core.Utils
             sendEmailException.Data.Add("MimeMessage", mailMessage);
 
             return sendEmailException;
+        }
+
+        private void LogMessagesSend(EmailMessageModel message)
+        {
+            _Logger.Log(LogLevel.Information, $"Email of subject '{message.Subject}' was sent to recipients: {message.To.ToCsvString()}");
         }
 
         #endregion

@@ -111,12 +111,13 @@ namespace StrengthIgniter.Core.Services
                     UserTokenModel userToken = user.Tokens.Where(x => x.TokenReference == registrationTokenReference).First();
                     if (userToken.PurposeCode == "Registration")
                     {
-                        if (userToken.ExpiryDateTimeUtc > DateTime.UtcNow)
+                        if (userToken.ExpiryDateTimeUtc <= DateTime.UtcNow)
                         {
                             LogInfo($"Registration validation attempted using expired token '{registrationTokenReference}' for user with reference '{user.Reference}'.");
                             return RegistrationValidationResponseType.RegistrationTokenExpired;
+                            //TODO: resent validation email ???
                         }
-                        else//token expired
+                        else//validate registration
                         {
                             using (IDbConnection dbConnection = GetConnection())
                             {
@@ -125,6 +126,10 @@ namespace StrengthIgniter.Core.Services
                                 {
                                     _UserDal.UpdateRegistrationValidated(dbConnection, dbTransaction, user.UserId);
                                     CreateAuditEvent(dbConnection, dbTransaction, AuditEventType.ValidatedRegistration, user.UserId, "", null);
+
+                                    //TODO: delete the token
+
+                                    dbTransaction.Commit();
                                 }
                             }
 

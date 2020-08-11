@@ -67,10 +67,12 @@ namespace StrengthIgniter.Core.Services
                     };
 
                     string passwordResetUrl = string.Format(_Config.PasswordResetBaseUrl, userToken.TokenReference.ToString());
-                    int auditId = 9;
+                    int auditId = 0;
 
                     using (IDbConnection dbConnection = GetConnection())
                     {
+                        dbConnection.Open();
+
                         using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                         {
                             _UserDal.CreateUserToken(dbConnection, dbTransaction, user.Reference, userToken);
@@ -102,7 +104,7 @@ namespace StrengthIgniter.Core.Services
                 UserModel user = _UserDal.GetByToken(passwordResetToken);
                 if (user != null)
                 {
-                    //this token should definitely exist other wise gt by token would nt work
+                    //this token should definitely exist other wise get by token would not work
                     UserTokenModel userToken = user.Tokens.Where(x => x.TokenReference == passwordResetToken).First();
                     if (userToken.PurposeCode == "PasswordReset")
                     {
@@ -165,7 +167,7 @@ namespace StrengthIgniter.Core.Services
                     }
 
                     UserSecurityQuestionAnswerModel question = user.SecurityQuestions
-                        .Where(x => x.Reference == request.PasswordResetToken)
+                        .Where(x => x.Reference == request.UserSecurityQuestionAnswerReference)
                         .FirstOrDefault();
 
                     if (question != null)
@@ -174,6 +176,8 @@ namespace StrengthIgniter.Core.Services
 
                         using (IDbConnection dbConnection = GetConnection())
                         {
+                            dbConnection.Open();
+
                             using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                             {
                                 if (_HashUtility.Validate(request.SecurityQuestionAnswer, question.AnswerHash))

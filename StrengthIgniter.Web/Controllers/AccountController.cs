@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -18,6 +19,8 @@ using StrengthIgniter.Web.Models;
 
 namespace StrengthIgniter.Web.Controllers
 {
+    //TODO: rename invalid token view !!!
+
     public class AccountController : Controller
     {
         private readonly ILoginService _LoginService;
@@ -63,8 +66,8 @@ namespace StrengthIgniter.Web.Controllers
 
                 if(response.ResponseType > 0)
                 {
-                    await SignInAsync(response);
-                    return LocalRedirect(vm.ReturnUrl);
+                    await SignInAsync(response, vm.RememberMe);
+                    return LocalRedirect(vm.ReturnUrl ?? "/");
                 }
                 else vm.LoginAttemptFailed = true;
             }
@@ -100,7 +103,7 @@ namespace StrengthIgniter.Web.Controllers
                     Password = vm.Password,
                     SecurityQuestionAnswers = new List<SecurityQuestionAnswerModel> { 
                         new SecurityQuestionAnswerModel { QuestionText = vm.SecurityQuestion, Answer = vm.SecurityQuestionAnswer } 
-                    }//TODO: multiple security questiosn
+                    }//TODO: multiple security questions
                 });
                 return View("RegisterComplete");
             }
@@ -108,17 +111,128 @@ namespace StrengthIgniter.Web.Controllers
             return View(vm);
         }
 
+        [AllowAnonymous]
+        [Route("account/validate/{token}")]
+        public IActionResult Validate(Guid token)
+        {
+            RegistrationValidationResponseType response = _RegistrationService.ValidateRegistration(token);
+            switch(response)
+            {
+                case RegistrationValidationResponseType.Success:
+                    return View();
+                case RegistrationValidationResponseType.NotFound:
+                case RegistrationValidationResponseType.RegistrationTokenExpired:
+                case RegistrationValidationResponseType.ValidationAttemptFailed:
+                default:
+                    return View("InvalidToken", new InvalidTokenViewModel
+                    {
+                        PageTitle = "Account Validation",
+                        Message = "Sorry, your account has not been validated."
+                    });
+            }
+        }
+
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult ForgotPassword(PasswordResetRequestViewModel vm)
+        {
+            _PasswordResetService.RequestPasswordReset(vm.EmailAddress);
+            return View("ForgotPasswordSent");
+        }
+
+        [AllowAnonymous]
+        [Route("account/passwordreset/{token}")]
+        public IActionResult PasswordReset(Guid token)
+        {
+            PasswordResetResponse response = _PasswordResetService.GetSecurityQuestion(token);
+            switch(response.ResponseType)
+            {
+                case PasswordResetResponseType.PasswordResetTokenValid:
+                    return View(new PasswordResetViewModel
+                    {
+                        PasswordResetToken = token,
+                        SecurityQuestionAnswerReference = response.UserSecurityQuestionAnswerReference,
+                        SecurityQuestion = response.QuestionText
+                    });
+                case PasswordResetResponseType.PasswordResetAttemptsMaxed:
+                    return View("InvalidToken", new InvalidTokenViewModel
+                    {
+                        PageTitle = "Password Reset",
+                        Message = "Sorry, you have reached the maximum allowed attempts to reset your password."
+                    });
+                case PasswordResetResponseType.PasswordResetTokenExpired:
+                case PasswordResetResponseType.PasswordResetTokenInvalid:
+                default:
+                    return View("InvalidToken", new InvalidTokenViewModel
+                    {
+                        PageTitle = "Password Reset",
+                        Message = "Sorry, your password reset URL appears to be invalid."
+                    });
+            }
+        }
+
+        [AllowAnonymous]
+        [Route("account/passwordreset/{token}")]
+        [HttpPost]
+        public IActionResult PasswordReset(PasswordResetViewModel vm)
+        {
+            if(ModelState.IsValid)
+            {
+                PasswordResetResponse response = _PasswordResetService.ResetPassword(new ResetPasswordRequest
+                {
+                    PasswordResetToken = vm.PasswordResetToken,
+                    NewPassword = vm.Password,
+                    UserSecurityQuestionAnswerReference = vm.SecurityQuestionAnswerReference,
+                    SecurityQuestionAnswer = vm.SecurityAnswer
+                });
+                switch(response.ResponseType)
+                {
+                    case PasswordResetResponseType.PasswordReset:
+                        return View("InvalidToken", new InvalidTokenViewModel
+                        {
+                            PageTitle = "Password Reset Complete",
+                            Message = "Your password has been reset."
+                        });
+                    case PasswordResetResponseType.PasswordResetAttemptsMaxed:
+                        return View("InvalidToken", new InvalidTokenViewModel
+                        {
+                            PageTitle = "Password Reset",
+                            Message = "Sorry, you have reached the maximum allowed attempts to reset your password."
+                        });
+                    case PasswordResetResponseType.PasswordResetTokenExpired:
+                    case PasswordResetResponseType.PasswordResetTokenInvalid:
+                        return View("InvalidToken", new InvalidTokenViewModel
+                        {
+                            PageTitle = "Password Reset",
+                            Message = "Sorry, your password reset URL appears to be invalid."
+                        });
+                    case PasswordResetResponseType.PasswordResetAttemptFailed:
+                    default:
+                        vm.PasswordResetAttemptFailed = true;
+                        break;
+                }
+            }
+            return View(vm);
+        }
+
         #region Private methods
 
         private IEnumerable<Claim> CreateClaims(LoginResponse loginResponse)
         {
-            return new Claim[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, loginResponse.UserReference.ToString()),
-                new Claim(ClaimTypes.Name, loginResponse.Name),
-                new Claim(ClaimTypes.Email, loginResponse.EmailAddress),
-                new Claim(ClaimTypes.Role, loginResponse.UserType.GetDescription())
-            };
+            List<Claim> claims = new List<Claim>();
+
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, loginResponse.UserReference.ToString()));
+            claims.Add(new Claim(ClaimTypes.Name, loginResponse.Name));
+            claims.Add(new Claim(ClaimTypes.Email, loginResponse.EmailAddress));
+            claims.Add(new Claim(ClaimTypes.Role, loginResponse.UserType.GetDescription()));
+
+            return claims;
         }
 
         private async Task SignInAsync(LoginResponse loginResponse, bool isPersistent = false)
