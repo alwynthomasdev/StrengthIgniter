@@ -28,6 +28,11 @@ namespace StrengthIgniter.Web
             services.TryAddTransient<IAuditEventDataAccess, AuditEventDataAccess>();
             services.TryAddTransient<IUserDataAccess, UserDataAccess>();
             services.TryAddTransient<ISecurityQuestionDataAccess, SecurityQuestionDataAccess>();
+
+            services.TryAddTransient<IExerciseDataAccess, ExerciseDataAccess>();
+
+            services.TryAddTransient<IRecordImportSchemaDataAccess, RecordImportSchemaDataAccess>();
+            services.TryAddTransient<IRecordImportDataAccess, RecordImportDataAccess>();
         }
 
         public static void AddCoreServices(this IServiceCollection services)
@@ -38,6 +43,9 @@ namespace StrengthIgniter.Web
             services.AddRegistrationService();
             services.AddPasswordResetService();
             services.AddUserSecurityQuestionResetService();
+
+            services.AddRecordImportSchemaService();
+            services.AddRecordImportService();
         }
 
         #region Individual services
@@ -92,6 +100,28 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<IUserDataAccess>(),
                 sp.GetRequiredService<ISecurityQuestionDataAccess>(),
                 sp.GetRequiredService<IHashUtility>(),
+                sp.GetRequiredService<IAuditEventDataAccess>(),
+                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<DatabaseConnectionFactory>()
+            ));
+        }
+
+        public static void AddRecordImportSchemaService(this IServiceCollection services)
+        {
+            services.TryAddTransient<IRecordImportSchemaService>(sp => new RecordImportSchemaService(
+                sp.GetRequiredService<IRecordImportSchemaDataAccess>(),
+                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<IAuditEventDataAccess>(),
+                sp.GetRequiredService<DatabaseConnectionFactory>()
+            ));
+        }
+
+        public static void AddRecordImportService(this IServiceCollection services)
+        {
+            services.TryAddTransient<IRecordImportService>(sp => new RecordImportService(
+                sp.GetRequiredService<IRecordImportDataAccess>(),
+                sp.GetRequiredService<IRecordImportSchemaDataAccess>(),
+                sp.GetRequiredService<IExerciseDataAccess>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
                 sp.GetRequiredService<ILoggerFactory>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()

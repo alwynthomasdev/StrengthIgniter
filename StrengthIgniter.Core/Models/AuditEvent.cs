@@ -13,6 +13,7 @@ namespace StrengthIgniter.Core.Models
 
         public string RelatedServiceName { get; set; }
         public int? RelatedUserId { get; set; }
+        public Guid? RelatedUserReference { get; set; }
         public int? RelatedAuditEventId { get; set; }
 
         public IEnumerable<AuditEventItemModel> Items { get; set; }
@@ -41,6 +42,8 @@ namespace StrengthIgniter.Core.Models
         public const string ValidatedRegistration = "ValidatedRegistration";
 
         public const string SecurityQuestionsUpdated = "SecurityQuestionsUpdated";
+
+        public const string NewImport = "NewImport";
     }
 
 }

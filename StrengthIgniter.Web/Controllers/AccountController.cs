@@ -41,10 +41,10 @@ namespace StrengthIgniter.Web.Controllers
             _UserSecurityQuestionResetService = userSecurityQuestionResetService;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+        //public IActionResult Index()
+        //{
+        //    return View();
+        //}
 
         [AllowAnonymous]
         public IActionResult Login(string returnUrl = "/")

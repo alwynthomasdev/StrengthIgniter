@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="CodeFluff.Extensions" Version="1.0.0" />
+    <PackageReference Include="CsvHelper" Version="15.0.5" />
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="EmailValidation" Version="1.0.3" />
     <PackageReference Include="FluentValidation" Version="8.6.2" />

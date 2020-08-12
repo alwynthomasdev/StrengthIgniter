@@ -26,10 +26,10 @@ namespace StrengthIgniter.Core.Data
 
         public int InsertAuditEvent(AuditEventModel auditEvent)
         {
-            using (var con = GetConnection())
+            using (IDbConnection con = GetConnection())
             {
                 con.Open();
-                using (var trn = con.BeginTransaction())
+                using (IDbTransaction trn = con.BeginTransaction())
                 {
                     return InsertAuditEvent(con, trn, auditEvent);
                 }
@@ -57,6 +57,15 @@ VALUES
 
 SELECT SCOPE_IDENTITY()
 ".Trim();
+            //add code to get real user id using reference
+            if (auditEvent.RelatedUserReference.HasValue)
+            {
+                sql = @"
+--DECALRE @RelatedUserId INTEGER
+SELECT TOP 1 @RelatedUserId = [UserId] FROM [User] WHERE [Reference] = @RelatedUserReference
+
+" + sql;
+            }
             #endregion
 
             try

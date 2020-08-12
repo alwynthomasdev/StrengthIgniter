@@ -70,6 +70,20 @@ namespace StrengthIgniter.Core.Services.Infrastructure
             };
             return _AuditEventDal.InsertAuditEvent(auditEvent);
         }
+        protected int CreateAuditEvent(string eventType, Guid userReference, string details, IEnumerable<AuditEventItemModel> items, int? relatedAuditId = null)
+        {
+            AuditEventModel auditEvent = new AuditEventModel
+            {
+                AuditEventDateTimeUtc = DateTime.UtcNow,
+                EventType = eventType,
+                Details = details,
+                RelatedUserReference = userReference,
+                RelatedServiceName = GetServiceName(),
+                RelatedAuditEventId = relatedAuditId,
+                Items = items
+            };
+            return _AuditEventDal.InsertAuditEvent(auditEvent);
+        }
 
         protected int CreateAuditEvent(IDbConnection dbConnection, IDbTransaction dbTransaction, 
             string eventType, int? userId, string details, IEnumerable<AuditEventItemModel> items, int? relatedAuditId = null)
@@ -86,6 +100,21 @@ namespace StrengthIgniter.Core.Services.Infrastructure
             };
             return _AuditEventDal.InsertAuditEvent(dbConnection, dbTransaction, auditEvent);
         }
+        protected int CreateAuditEvent(IDbConnection dbConnection, IDbTransaction dbTransaction,
+            string eventType, Guid userReference, string details, IEnumerable<AuditEventItemModel> items, int? relatedAuditId = null)
+        {
+            AuditEventModel auditEvent = new AuditEventModel
+            {
+                AuditEventDateTimeUtc = DateTime.UtcNow,
+                EventType = eventType,
+                Details = details,
+                RelatedUserReference = userReference,
+                RelatedServiceName = GetServiceName(),
+                RelatedAuditEventId = relatedAuditId,
+                Items = items
+            };
+            return _AuditEventDal.InsertAuditEvent(dbConnection, dbTransaction, auditEvent);
+        }
 
         protected int CreateEmailAuditEvent(EmailMessageModel emailModel, int? userId, int? relatedAuditEventId = null)
         {
@@ -96,6 +125,16 @@ namespace StrengthIgniter.Core.Services.Infrastructure
                 new AuditEventItemModel { Key = "MessageBody", Value = emailModel.Body },
             };
             return CreateAuditEvent(AuditEventType.EmailSent, userId, "Subject: " + emailModel.Subject, auditItems, relatedAuditEventId);
+        }
+        protected int CreateEmailAuditEvent(EmailMessageModel emailModel, Guid userReference, int? relatedAuditEventId = null)
+        {
+            IEnumerable<AuditEventItemModel> auditItems = new AuditEventItemModel[]
+            {
+                new AuditEventItemModel { Key = "SendTo", Value = emailModel.To.ToCsvString() },
+                new AuditEventItemModel { Key = "Subject", Value = emailModel.Subject },
+                new AuditEventItemModel { Key = "MessageBody", Value = emailModel.Body },
+            };
+            return CreateAuditEvent(AuditEventType.EmailSent, userReference, "Subject: " + emailModel.Subject, auditItems, relatedAuditEventId);
         }
 
         #endregion ... Audit Helpers

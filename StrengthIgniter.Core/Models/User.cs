@@ -7,7 +7,7 @@ namespace StrengthIgniter.Core.Models
 {
     public class UserModel
     {
-        internal int UserId { get; set; }
+        public int UserId { get; internal set; }
         public Guid Reference { get; internal set; }
         public string Name { get; set; }
         public string EmailAddress { get; set; }

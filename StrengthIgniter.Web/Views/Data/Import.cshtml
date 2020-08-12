@@ -1,0 +1,33 @@
+﻿@model StrengthIgniter.Core.Models.RecordImportModel
+@{
+    ViewData["Title"] = "Import - " + Model.Name;
+}
+    <table class="table">
+        <tr>
+            <th>Exercise</th>
+            <th>Date</th>
+            <th>Sets</th>
+            <th>Reps</th>
+            <th>Weight (Kg)</th>
+            <th>Weight (Lb)</th>
+            <th>Bodyweight (Kg)</th>
+            <th>Bodyweight (Lb)</th>
+            <th>RPE</th>
+            <th>Notes</th>
+        </tr>
+        @foreach (var row in Model.Rows)
+        {
+            <tr>
+                <td>@row.ExerciseText</td>
+                <td>@row.DateText</td>
+                <td>@row.SetText</td>
+                <td>@row.RepText</td>
+                <td>@row.WeightKgText</td>
+                <td>@row.WeightLbText</td>
+                <td>@row.BodyweightKgText</td>
+                <td>@row.BodyweightLbText</td>
+                <td>@row.RpeText</td>
+                <td>@row.Notes</td>
+            </tr>
+        }
+    </table>
