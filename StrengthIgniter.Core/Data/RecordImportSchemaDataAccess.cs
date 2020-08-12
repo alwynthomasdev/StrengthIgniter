@@ -61,7 +61,7 @@ WHERE
                     return schemas;
                 }
             }
-            catch(DataAccessException ex)
+            catch(DataAccessException)
             {
                 throw;
             }
@@ -102,7 +102,7 @@ WHERE
                     return schema;
                 }
             }
-            catch (DataAccessException ex)
+            catch (DataAccessException)
             {
                 throw;
             }

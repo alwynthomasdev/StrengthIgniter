@@ -75,7 +75,49 @@ WHERE
 
         public IEnumerable<RecordImportModel> GetByUserReference(Guid userReference)
         {
-            throw new NotImplementedException();
+            #region SQL
+            string sql = @"
+SELECT [RecordImportId]
+      ,[ri].[Reference]
+      ,[ri].[UserId]
+      ,[ri].[RecordImportSchemaId]
+      ,[ri].[Name]
+      ,[ri].[ImportDateTimeUtc]
+FROM [RecordImport] [ri]
+    INNER JOIN [User] u
+        ON [ri].[UserId] = [u].[UserId]
+WHERE
+    [ri].[IsDeleted] = 0 AND
+    [u]. [Reference] = @UserReference
+";
+            #endregion
+
+            object parameters = new { UserReference = userReference };
+
+            try
+            {
+                using (IDbConnection dbConnection = GetConnection())
+                {
+                    RecordImportModel[] imports = dbConnection.Query<RecordImportModel>(sql, parameters).TryToArray();
+                    if(imports.HasItems())
+                    {
+                        for(int i = 0; i<imports.Length; i++)
+                        {
+                            imports[i].Rows = GetImportRows(dbConnection, imports[i].RecordImportId);
+                        }
+                    }
+                    return imports;
+                }
+            }
+            catch (DataAccessException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
+
         }
 
         public void Insert(IDbConnection dbConnection, IDbTransaction dbTransaction, RecordImportModel import)

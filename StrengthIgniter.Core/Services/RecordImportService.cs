@@ -21,6 +21,7 @@ namespace StrengthIgniter.Core.Services
     {
         Guid Import(NewImportRequest request);
         RecordImportModel GetByReference(Guid reference, Guid userReference);
+        IEnumerable<RecordImportModel> GetUserImports(Guid userReference);
     }
 
     public class RecordImportService : ServiceBase, IRecordImportService
@@ -93,6 +94,12 @@ namespace StrengthIgniter.Core.Services
         {
             return _RecordImportDal.GetByReference(reference, userReference);
         }
+
+        public IEnumerable<RecordImportModel> GetUserImports(Guid userReference)
+        {
+            return _RecordImportDal.GetByUserReference(userReference);
+        }
+
 
         #region Private Methods
 
@@ -234,9 +241,9 @@ namespace StrengthIgniter.Core.Services
 
             if (errors.HasItems())
             {
-                row.StatusCode = StatusCode.Error;
+                row.StatusCode = ImportRowStatusCode.Error;
             }
-            else row.StatusCode = StatusCode.Ready;
+            else row.StatusCode = ImportRowStatusCode.Ready;
 
             row.Errors = errors.Select(err => new RecordImportRowErrorModel { ErrorCode = err });
 

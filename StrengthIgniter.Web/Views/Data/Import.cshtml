@@ -1,33 +1,95 @@
-﻿@model StrengthIgniter.Core.Models.RecordImportModel
+﻿@model RecordImportModel
 @{
     ViewData["Title"] = "Import - " + Model.Name;
+
+    //TODO: move methods someplace better ...
+
+    string GenerateWeightString(string kg, string lb)
+    {
+        string output = "";
+        if (!string.IsNullOrWhiteSpace(kg))
+        {
+            output = kg + " kg";
+        }
+        if (!string.IsNullOrWhiteSpace(lb))
+        {
+            if (output != "") output += " / ";
+            output += lb + " lb";
+        }
+        return output;
+    }
+
+    string GenerateRowStatusClass(ImportRowStatusCode statusCode)
+    {
+        switch (statusCode)
+        {
+            case ImportRowStatusCode.Error:
+                return "table-danger";
+            case ImportRowStatusCode.Processed:
+                return "table-success";
+            case ImportRowStatusCode.Ready:
+            default:
+                return "";
+        }
+    }
+
+    //
+
 }
-    <table class="table">
+
+<div class="row">
+    <div class="col-12 col-md-6">
+        <h1>
+            Import: @Model.Name
+        </h1>
+    </div>
+    <div class="col-12 col-md-6 text-xs-left text-md-right">
+        <a href="#" class="btn btn-lg btn-success">Process</a>
+        <a href="#" class="btn btn-lg btn-danger">Delete</a>
+    </div>
+</div>
+<hr />
+
+<table class="table">
+    <thead class="thead-dark">
         <tr>
+            @*<th></th>*@
             <th>Exercise</th>
             <th>Date</th>
             <th>Sets</th>
             <th>Reps</th>
-            <th>Weight (Kg)</th>
-            <th>Weight (Lb)</th>
-            <th>Bodyweight (Kg)</th>
-            <th>Bodyweight (Lb)</th>
+            <th>Weight</th>
+            <th>Bodyweight</th>
             <th>RPE</th>
-            <th>Notes</th>
+            @*<th>Notes</th>*@
+            @*<th></th>*@
         </tr>
-        @foreach (var row in Model.Rows)
+    </thead>
+    <tbody>
+        @foreach (RecordImportRowModel row in Model.Rows)
         {
-            <tr>
+            <tr class="@GenerateRowStatusClass(row.StatusCode)" data-id="@row.RecordImportRowId">
+                @*<td><input type="checkbox" /></td>*@
                 <td>@row.ExerciseText</td>
                 <td>@row.DateText</td>
                 <td>@row.SetText</td>
                 <td>@row.RepText</td>
-                <td>@row.WeightKgText</td>
-                <td>@row.WeightLbText</td>
-                <td>@row.BodyweightKgText</td>
-                <td>@row.BodyweightLbText</td>
+                <td>@GenerateWeightString(row.WeightKgText, row.WeightLbText)</td>
+                <td>@GenerateWeightString(row.BodyweightKgText, row.BodyweightLbText)</td>
                 <td>@row.RpeText</td>
-                <td>@row.Notes</td>
+                @*<td>@row.Notes</td>*@
+            @*<th>
+                @if (row.StatusCode != ImportRowStatusCode.Processed)
+                {
+                    <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                    <a href="#" class="btn btn-sm btn-warning">Edit</a>
+                }
+                @if (row.StatusCode == ImportRowStatusCode.Ready)
+                {
+                    <a href="#" class="btn btn-sm btn-success">Process</a>
+                }
+            </th>*@
             </tr>
         }
-    </table>
+    </tbody>
+</table>

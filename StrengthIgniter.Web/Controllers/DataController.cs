@@ -38,10 +38,11 @@ namespace StrengthIgniter.Web.Controllers
             _RecordImportSchemaService = recordImportSchemaService;
         }
 
-        //public IActionResult Index()
-        //{
-        //    return View();
-        //}
+        public IActionResult Index()
+        {
+            IEnumerable<RecordImportModel> imports = _RecordImportService.GetUserImports(User.GetNameIdentifier());
+            return View(imports);
+        }
 
         public IActionResult Import()
         {
@@ -82,6 +83,17 @@ namespace StrengthIgniter.Web.Controllers
             RecordImportModel import = _RecordImportService.GetByReference(reference, User.GetNameIdentifier());
             return View(import);
         }
+
+        //public IActionResult Delete(Guid reference)
+        //{
+        //    //TODO: delete import
+        //    return Json(true);
+        //}
+        //public IActionResult DeleteRow(Guid reference)
+        //{
+        //    //TODO: delete import row
+        //    return Json(true);
+        //}
 
     }
 }

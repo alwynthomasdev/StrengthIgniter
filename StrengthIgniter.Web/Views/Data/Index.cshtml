@@ -1,0 +1,34 @@
+﻿@model IEnumerable<RecordImportModel>
+@{ 
+    ViewData["Title"] = "Imports";
+}
+
+<div class="row">
+    <div class="col">
+        <h2>Imports</h2>
+        <hr />
+    </div>
+</div>
+
+<table class="table">
+    <thead class="thead-dark"> 
+        <tr>
+            <th>Import</th>
+            <th>Date/Time (UTC)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(RecordImportModel import in Model)
+        {
+        <tr>
+            <td>@import.Name</td>
+            <td>@import.ImportDateTimeUtc.ToShortDateString() @import.ImportDateTimeUtc.ToShortTimeString()</td>
+            <td>
+                <a asp-action="Import" asp-route-reference="@import.Reference" class="btn btn-info btn-sm">View</a>
+                <a href="#" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

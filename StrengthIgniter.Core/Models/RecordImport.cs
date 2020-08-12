@@ -24,7 +24,7 @@ namespace StrengthIgniter.Core.Models
         public int RecordImportRowId { get; internal set; }
         public int RecordImportId { get; set; }
 
-        public StatusCode StatusCode { get; set; }
+        public ImportRowStatusCode StatusCode { get; set; }
 
         public int ExerciseId { get; set; }
         public string ExerciseText { get; set; }
@@ -49,10 +49,11 @@ namespace StrengthIgniter.Core.Models
         public ErrorCode ErrorCode { get; set; }
     }
 
-    public enum StatusCode
+    public enum ImportRowStatusCode
     {
         Error = -1,
-        Ready = 1
+        Ready = 0,
+        Processed = 1
     }
 
     public enum ErrorCode
