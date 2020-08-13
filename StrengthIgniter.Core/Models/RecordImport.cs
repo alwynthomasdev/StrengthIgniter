@@ -66,16 +66,18 @@ namespace StrengthIgniter.Core.Models
 
         WeightKgInvalid = 5,
         WeightLbInvalid = 6,
+        WeightDuplicate = 7,
 
-        BodyweightKgInvalid = 7,
-        BodyweightLbInvalid = 8,
+        BodyweightKgInvalid = 8,
+        BodyweightLbInvalid = 9,
+        BodyweightDuplicate = 7,
 
-        SetInvalid = 9,
+        SetInvalid = 11,
 
-        RepRequired = 10,
-        RepInvalid = 11,
+        RepRequired = 12,
+        RepInvalid = 13,
 
-        RpeInvalid = 12
+        RpeInvalid = 14
 
     }
 

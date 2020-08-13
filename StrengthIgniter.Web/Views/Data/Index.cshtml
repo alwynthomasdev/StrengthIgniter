@@ -26,7 +26,7 @@
             <td>@import.ImportDateTimeUtc.ToShortDateString() @import.ImportDateTimeUtc.ToShortTimeString()</td>
             <td>
                 <a asp-action="Import" asp-route-reference="@import.Reference" class="btn btn-info btn-sm">View</a>
-                <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                <a asp-action="Delete" asp-route-reference="@import.Reference" class="btn btn-danger btn-sm">Delete</a>
             </td>
         </tr>
         }

@@ -84,16 +84,19 @@ namespace StrengthIgniter.Web.Controllers
             return View(import);
         }
 
-        //public IActionResult Delete(Guid reference)
-        //{
-        //    //TODO: delete import
-        //    return Json(true);
-        //}
-        //public IActionResult DeleteRow(Guid reference)
-        //{
-        //    //TODO: delete import row
-        //    return Json(true);
-        //}
+        [Route("data/process/{reference}")]
+        public IActionResult Process(Guid reference)
+        {
+            _RecordImportService.ProcessImport(reference, User.GetNameIdentifier());
+            return RedirectToAction("import", new { reference = reference });
+        }
+
+
+        public IActionResult Delete(Guid reference)
+        {
+            _RecordImportService.DeleteImport(reference, User.GetNameIdentifier());
+            return RedirectToAction("");
+        }
 
     }
 }

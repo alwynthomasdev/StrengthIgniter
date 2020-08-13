@@ -5,6 +5,7 @@ using StrengthIgniter.Core.Models;
 using StrengthIgniter.Core.Services.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace StrengthIgniter.Core.Services
@@ -35,7 +36,15 @@ namespace StrengthIgniter.Core.Services
 
         public IEnumerable<RecordImportSchemaModel> GetAllSchemas()
         {
-            return _RecordImportSchemeDal.GetAll();
+            try
+            {
+                return _RecordImportSchemeDal.GetAll();
+            }
+            catch(Exception ex)
+            {
+                ServiceException serviceException = CreateServiceException(ex, MethodInfo.GetCurrentMethod().Name, null);
+                throw serviceException;
+            }
         }
     }
 

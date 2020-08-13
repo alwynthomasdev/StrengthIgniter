@@ -30,6 +30,7 @@ namespace StrengthIgniter.Web
             services.TryAddTransient<ISecurityQuestionDataAccess, SecurityQuestionDataAccess>();
 
             services.TryAddTransient<IExerciseDataAccess, ExerciseDataAccess>();
+            services.TryAddTransient<IRecordDataAccess, RecordDataAccess>();
 
             services.TryAddTransient<IRecordImportSchemaDataAccess, RecordImportSchemaDataAccess>();
             services.TryAddTransient<IRecordImportDataAccess, RecordImportDataAccess>();
@@ -43,6 +44,8 @@ namespace StrengthIgniter.Web
             services.AddRegistrationService();
             services.AddPasswordResetService();
             services.AddUserSecurityQuestionResetService();
+
+            services.AddExerciseService();
 
             services.AddRecordImportSchemaService();
             services.AddRecordImportService();
@@ -106,6 +109,17 @@ namespace StrengthIgniter.Web
             ));
         }
 
+        public static void AddExerciseService(this IServiceCollection services)
+        {
+            services.TryAddTransient<IExerciseService>(sp => new ExerciseService(
+                sp.GetRequiredService<IExerciseDataAccess>(),
+                sp.GetRequiredService<IRecordDataAccess>(),
+                sp.GetRequiredService<IAuditEventDataAccess>(),
+                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<DatabaseConnectionFactory>()
+            ));
+        }
+
         public static void AddRecordImportSchemaService(this IServiceCollection services)
         {
             services.TryAddTransient<IRecordImportSchemaService>(sp => new RecordImportSchemaService(
@@ -122,6 +136,7 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<IRecordImportDataAccess>(),
                 sp.GetRequiredService<IRecordImportSchemaDataAccess>(),
                 sp.GetRequiredService<IExerciseDataAccess>(),
+                sp.GetRequiredService<IRecordDataAccess>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
                 sp.GetRequiredService<ILoggerFactory>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()

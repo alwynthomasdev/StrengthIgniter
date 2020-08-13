@@ -44,7 +44,7 @@
         </h1>
     </div>
     <div class="col-12 col-md-6 text-xs-left text-md-right">
-        <a href="#" class="btn btn-lg btn-success">Process</a>
+        <a asp-action="process" asp-route-reference="@Model.Reference" class="btn btn-lg btn-success">Process</a>
         <a href="#" class="btn btn-lg btn-danger">Delete</a>
     </div>
 </div>
@@ -66,30 +66,33 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (RecordImportRowModel row in Model.Rows)
+        @if (Model.Rows.HasItems())
         {
-            <tr class="@GenerateRowStatusClass(row.StatusCode)" data-id="@row.RecordImportRowId">
-                @*<td><input type="checkbox" /></td>*@
-                <td>@row.ExerciseText</td>
-                <td>@row.DateText</td>
-                <td>@row.SetText</td>
-                <td>@row.RepText</td>
-                <td>@GenerateWeightString(row.WeightKgText, row.WeightLbText)</td>
-                <td>@GenerateWeightString(row.BodyweightKgText, row.BodyweightLbText)</td>
-                <td>@row.RpeText</td>
-                @*<td>@row.Notes</td>*@
-            @*<th>
-                @if (row.StatusCode != ImportRowStatusCode.Processed)
-                {
-                    <a href="#" class="btn btn-sm btn-danger">Delete</a>
-                    <a href="#" class="btn btn-sm btn-warning">Edit</a>
-                }
-                @if (row.StatusCode == ImportRowStatusCode.Ready)
-                {
-                    <a href="#" class="btn btn-sm btn-success">Process</a>
-                }
-            </th>*@
-            </tr>
+            foreach (RecordImportRowModel row in Model.Rows)
+            {
+                <tr class="@GenerateRowStatusClass(row.StatusCode)" data-id="@row.RecordImportRowId">
+                    @*<td><input type="checkbox" /></td>*@
+                    <td>@row.ExerciseText</td>
+                    <td>@row.DateText</td>
+                    <td>@row.SetText</td>
+                    <td>@row.RepText</td>
+                    <td>@GenerateWeightString(row.WeightKgText, row.WeightLbText)</td>
+                    <td>@GenerateWeightString(row.BodyweightKgText, row.BodyweightLbText)</td>
+                    <td>@row.RpeText</td>
+                    @*<td>@row.Notes</td>*@
+                @*<th>
+                    @if (row.StatusCode != ImportRowStatusCode.Processed)
+                    {
+                        <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                        <a href="#" class="btn btn-sm btn-warning">Edit</a>
+                    }
+                    @if (row.StatusCode == ImportRowStatusCode.Ready)
+                    {
+                        <a href="#" class="btn btn-sm btn-success">Process</a>
+                    }
+                </th>*@
+                </tr>
+            }
         }
     </tbody>
 </table>

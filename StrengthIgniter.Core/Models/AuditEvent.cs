@@ -43,7 +43,10 @@ namespace StrengthIgniter.Core.Models
 
         public const string SecurityQuestionsUpdated = "SecurityQuestionsUpdated";
 
-        public const string NewImport = "NewImport";
+        public const string ImportNew = "ImportNew";
+        public const string ImportProcessed = "ImportProcessed";
+        public const string ImportRowProcessed = "ImportRowProcessed";
+        public const string ImportDeleted = "ImportDeleted";
     }
 
 }
