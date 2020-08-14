@@ -188,7 +188,7 @@ namespace StrengthIgniter.Core.Services
 
     public sealed class LoginResponse
     {
-        //TODO: return relevant login data
+        //return relevant login data
         public LoginResponseType ResponseType { get; internal set; }
         public Guid UserReference { get; internal set; }
         public string Name { get; internal set; }

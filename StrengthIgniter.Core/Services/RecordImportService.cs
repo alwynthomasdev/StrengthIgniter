@@ -224,7 +224,7 @@ namespace StrengthIgniter.Core.Services
                 });
                 }
             }
-            //TODO: somthing if the row is not ready
+            //TODO: something if the row is not ready
         }
 
         private RecordImportSchemaModel GetSchema(Guid schemaReference)

@@ -114,6 +114,7 @@ namespace StrengthIgniter.Web
             services.TryAddTransient<IExerciseService>(sp => new ExerciseService(
                 sp.GetRequiredService<IExerciseDataAccess>(),
                 sp.GetRequiredService<IRecordDataAccess>(),
+                sp.GetRequiredService<IPaginationUtility>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
                 sp.GetRequiredService<ILoggerFactory>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()

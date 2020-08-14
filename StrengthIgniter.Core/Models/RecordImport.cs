@@ -8,15 +8,16 @@ namespace StrengthIgniter.Core.Models
     {
         public int RecordImportId { get; internal set; }
         public Guid Reference { get; internal set; }
-        public int UserId { get; internal set; }
-        public Guid UserReference { get; set; } // TODO: ???
-        public int RecordImportSchemaId { get; internal set; }
-        public Guid? RecordImportSchemaReference { get; set; } // TODO: ???
-
         public string Name { get; set; }
+        public int UserId { get; internal set; }
+        public int RecordImportSchemaId { get; internal set; }
         public DateTime ImportDateTimeUtc { get; internal set; }
 
         public IEnumerable<RecordImportRowModel> Rows { get; set; }
+
+        //
+        public Guid? RecordImportSchemaReference { get; set; } 
+        public Guid UserReference { get; set; } 
     }
 
     public class RecordImportRowModel

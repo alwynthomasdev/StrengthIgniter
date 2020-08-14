@@ -26,6 +26,7 @@ namespace StrengthIgniter.Web
             ));
             services.TryAddSingleton<IHashUtility>(new HashUtility());
             services.TryAddSingleton<ITemplateUtility>(sp => new TemplateUtility(sp.GetRequiredService<ContentRootPathFactory>().GetPath()));
+            services.TryAddSingleton<IPaginationUtility>(new PaginationUtility());
 
         }
     }

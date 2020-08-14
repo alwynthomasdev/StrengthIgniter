@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using StrengthIgniter.Core.Services;
 using StrengthIgniter.Core.Utils;
+using StrengthIgniter.Web.Models.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace StrengthIgniter.Web
             services.Configure<RegistrationServiceConfig>(configuration.GetSection("CoreServiceConfiguration:RegistrationServiceConfig"));
             services.Configure<PasswordResetServiceConfig>(configuration.GetSection("CoreServiceConfiguration:PasswordResetServiceConfig"));
             services.Configure<UserSecurityQuestionResetServiceConfig>(configuration.GetSection("CoreServiceConfiguration:UserSecurityQuestionResetServiceConfig"));
+
+            services.Configure<ExerciseSearchConfig>(configuration.GetSection("ExerciseConfigSearch"));
         }
     }
 }

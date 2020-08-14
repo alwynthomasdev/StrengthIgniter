@@ -19,8 +19,6 @@ using StrengthIgniter.Web.Models;
 
 namespace StrengthIgniter.Web.Controllers
 {
-    //TODO: rename invalid token view !!!
-
     public class AccountController : Controller
     {
         private readonly ILoginService _LoginService;
@@ -124,7 +122,7 @@ namespace StrengthIgniter.Web.Controllers
                 case RegistrationValidationResponseType.RegistrationTokenExpired:
                 case RegistrationValidationResponseType.ValidationAttemptFailed:
                 default:
-                    return View("InvalidToken", new InvalidTokenViewModel
+                    return View("Message", new MessageViewModel
                     {
                         PageTitle = "Account Validation",
                         Message = "Sorry, your account has not been validated."
@@ -161,7 +159,7 @@ namespace StrengthIgniter.Web.Controllers
                         SecurityQuestion = response.QuestionText
                     });
                 case PasswordResetResponseType.PasswordResetAttemptsMaxed:
-                    return View("InvalidToken", new InvalidTokenViewModel
+                    return View("Message", new MessageViewModel
                     {
                         PageTitle = "Password Reset",
                         Message = "Sorry, you have reached the maximum allowed attempts to reset your password."
@@ -169,7 +167,7 @@ namespace StrengthIgniter.Web.Controllers
                 case PasswordResetResponseType.PasswordResetTokenExpired:
                 case PasswordResetResponseType.PasswordResetTokenInvalid:
                 default:
-                    return View("InvalidToken", new InvalidTokenViewModel
+                    return View("Message", new MessageViewModel
                     {
                         PageTitle = "Password Reset",
                         Message = "Sorry, your password reset URL appears to be invalid."
@@ -194,20 +192,20 @@ namespace StrengthIgniter.Web.Controllers
                 switch(response.ResponseType)
                 {
                     case PasswordResetResponseType.PasswordReset:
-                        return View("InvalidToken", new InvalidTokenViewModel
+                        return View("Message", new MessageViewModel
                         {
                             PageTitle = "Password Reset Complete",
                             Message = "Your password has been reset."
                         });
                     case PasswordResetResponseType.PasswordResetAttemptsMaxed:
-                        return View("InvalidToken", new InvalidTokenViewModel
+                        return View("Message", new MessageViewModel
                         {
                             PageTitle = "Password Reset",
                             Message = "Sorry, you have reached the maximum allowed attempts to reset your password."
                         });
                     case PasswordResetResponseType.PasswordResetTokenExpired:
                     case PasswordResetResponseType.PasswordResetTokenInvalid:
-                        return View("InvalidToken", new InvalidTokenViewModel
+                        return View("Message", new MessageViewModel
                         {
                             PageTitle = "Password Reset",
                             Message = "Sorry, your password reset URL appears to be invalid."

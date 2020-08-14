@@ -57,10 +57,7 @@ namespace StrengthIgniter.Web.Controllers
         {
             if(ModelState.IsValid)
             {
-                if (vm.CsvFile == null || vm.CsvFile.Length == 0)
-                {
-                    return Content("file not selected");//TODO: ????
-                }
+                //TODO: validate file type / content
                 var stream = vm.CsvFile.OpenReadStream();
                 string name = string.IsNullOrWhiteSpace(vm.Name) ? vm.CsvFile.FileName : vm.Name;
 

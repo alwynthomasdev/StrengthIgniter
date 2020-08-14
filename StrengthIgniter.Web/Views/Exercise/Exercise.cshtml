@@ -1,0 +1,85 @@
+﻿@model ExerciseModel
+@{ 
+    ViewData["Title"] = Model.Name;
+    Guid sectionId = Guid.NewGuid();
+}
+    <section id="@sectionId">
+        <div class="row">
+            <div class="col">
+                <h2>@Model.Name</h2>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col">
+                <canvas id="max-chart"></canvas>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Sets</th>
+                            <th>Reps</th>
+                            <th>Weight</th>
+                            <th>Bodyweight</th>
+                            <th>RPE</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot><tr><td colspan="6" class="pagination-container"></td></tr></tfoot>
+                </table>
+            </div>
+        </div>
+    </section>
+
+@section Scripts{ 
+    <script>
+
+    (function ($) {
+        'use strict';
+
+        var $sectionContainer = $('#@sectionId');
+
+        var exercisePaginator = new Paginator({
+            table: $sectionContainer.find('table'),
+            url: '/exercise/pagedexerciserecords',
+            filters: { reference: '@Model.Reference' },
+            pageLength: 10,
+            rowGenerator: function (record) {
+                console.log(record);
+                var $row = $('<tr data-id="' + record.recordId + '" class=""></tr>')
+                    .append('<td>' + moment(record.date).format('MMM Do YYYY') + '</td>')
+                    .append('<td>' + (record.sets === null ? '1' : record.sets) + '</td>')
+                    .append('<td>' + record.reps + '</td>')
+                    .append('<td>' + record.weightKg + '</td>')
+                    .append('<td>' + (record.bodyweightKg !== null ? record.bodyweightKg + 'kg' : '') + '</td>')
+                    .append('<td>' + (record.rpe === null ? '' : record.rpe) + '</td>');
+
+                return $row;
+            },
+            showLoadingMessage: function () {
+                return '<tr><td colspan="6" style="text-align:center;">Loading</td></tr>';
+            }
+        });
+
+        var init = function () {
+            RenderMaxChart('@Model.Reference', 'max-chart');
+            //$sectionContainer.on('keypress', '#txt-search', supressEnterKeyPressEvent);
+            //$sectionContainer.on('keyup', '#txt-search', createDelayedEventHandler(txtSearchChangeEventHandler, 1000));
+        }
+
+        @*var txtSearchChangeEventHandler = function (e) {
+            var $this = $(this);
+            var searchString = $this.val();
+            exercisePaginator.sendRequest({ reference: '@Model.Reference' });
+        }*@
+
+        init();
+    })(jQuery);
+
+    </script>
+}

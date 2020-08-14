@@ -7,7 +7,7 @@ namespace StrengthIgniter.Core.Models
     public class ExerciseModel
     {
         public int ExerciseId { get; internal set; }
-        public Guid ExerciseReference { get; internal set; }
+        public Guid Reference { get; internal set; }
         public string Name { get; set; }
     }
 }

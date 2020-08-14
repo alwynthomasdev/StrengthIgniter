@@ -34,8 +34,8 @@ function Paginator(options) {
         }
 
         var data = $this.filters;
-        data.p = $this.pageNumber;
-        data.l = $this.pageLength;
+        data.pageNumber = $this.pageNumber;
+        data.pageLength = $this.pageLength;
 
         if (showLoadingMessage) {
             var $tbody = $this.$table.find('tbody');
@@ -210,4 +210,106 @@ function Paginator(options) {
     };
 
     init();
+}
+
+function RenderMaxChart(reference, canvasElementId) {
+
+    $.get('/chart/max/' + reference, function (data) {
+
+        var dates = $.map(data, function (i) {
+            return moment(i.date);
+        });
+
+        var ctx = document.getElementById(canvasElementId).getContext('2d');
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'line',
+
+            // The data for our dataset
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'e1RM',
+                    fill: false,
+                    borderColor: '#900',
+                    data: $.map(data, function (i) {
+                        return { x: i.date, y: i.e1RM, reps: i.reps, weight: i.weightKg, rpe: i.rpe }
+                    })
+                },
+                {
+                    borderColor: '#f66',
+                    label: 'RPE Max',
+                    borderDash: [5, 5],
+                    fill: false,
+                    data: $.map(data, function (i) {
+                        return { x: i.date, y: i.rpeMax !== null ? i.rpeMax : i.e1RM, reps: i.reps, weight: i.weightKg, rpe: i.rpe }
+                    }),
+                }]
+            },
+
+            // Configuration options go here
+            options: {
+                legend: {
+                    onClick: (e) => e.stopPropagation()
+                },
+                tooltips: {
+                    callbacks: {
+                        title: function (item, data) {
+
+                            //get data set label
+                            var dsLabel = '';
+                            if (item[0].datasetIndex === 0) {
+                                dsLabel = 'e1RM';
+                            } else {
+                                dsLabel = 'RPE Max';
+                            }
+
+                            //get properly formated date
+                            var date = moment(item[0].xLabel).format('MMM Do YYYY');
+
+                            //create title
+                            return date + ', ' + item[0].yLabel + 'kg ' + dsLabel;
+                        },
+                        label: function (item, data) {
+                            //get the record data from chart data
+
+                            var rec = data.datasets[item.datasetIndex].data[item.index];
+
+                            //if the rpe is null return no label
+                            if (item.datasetIndex === 1) {
+                                if (rec.rpe === null) {
+                                    return '';
+                                }
+                            }
+
+                            //create label
+                            return rec.reps + ' reps, ' + rec.weight + 'kg' + (rec.rpe !== null ? ', RPE'+rec.rpe : '');
+                        }
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        distribution: 'linear',
+                        time: {
+                            unit: 'week',
+                        },
+                        ticks: {
+                            display: false,
+                            min: moment.min(dates),
+                            max: moment.max(dates).add(1, 'w'),
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            callback: function (value, index, values) {
+                                return value + 'kg';
+                            }
+                        }
+                    }]
+                }
+            }
+        });
+
+    });
 }

@@ -3,36 +3,42 @@
     Guid sectionId = Guid.NewGuid();
 }
 
-<section id="@sectionId">
+    <section id="@sectionId">
 
-    <div class="row">
-        <div class="col">
-            <form asp-action="search" asp-controller="exercise" method="get">
-                <div class="row">
-                    <div class="col">
-                        <input type="search" id="txt-search" class="form-control" placeholder="Exercie Search" />
+        <div class="row">
+            <div class="col">
+                <h1>
+                    Exercises
+                </h1>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col">
+                <form asp-action="search" asp-controller="exercise" method="get">
+                    <div class="row">
+                        <div class="col">
+                            <input type="search" id="txt-search" class="form-control" placeholder="Exercie Search" />
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <table class="table table-striped">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Name</th>
-                        <th>
-                            <a href="#"></a>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-                <tfoot><tr><td colspan="2" class="pagination-container"></td></tr></tfoot>
-            </table>
+        <hr />
+        <div class="row">
+            <div class="col">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot><tr><td colspan="2" class="pagination-container"></td></tr></tfoot>
+                </table>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
 @section Scripts{
     <script type="text/javascript">
@@ -46,7 +52,7 @@
                 url: 'exercise/pagedsearch',
                 pageLength: 10,
                 rowGenerator: function (exercise) {
-
+                    console.log(exercise);
                     var $row = $('<tr data-reference="' + exercise.reference + '" class="clickable"></tr>')
                         .append('<td>' + exercise.name + '</td>');
 
@@ -59,7 +65,7 @@
                     return $row;
                 },
                 showLoadingMessage: function () {
-                    return '<tr><td colspan="2" style="text-align:center;">Loading</td></tr>';
+                    return '<tr><td colspan="1" style="text-align:center;">Loading</td></tr>';
                 }
             });
 
@@ -72,7 +78,7 @@
             var txtSearchChangeEventHandler = function (e) {
                 var $this = $(this);
                 var searchString = $this.val();
-                exercisePaginator.sendRequest({ s: searchString });
+                exercisePaginator.sendRequest({ searchString: searchString });
             }
 
             init();

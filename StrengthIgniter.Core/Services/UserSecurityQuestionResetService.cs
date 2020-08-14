@@ -20,8 +20,7 @@ namespace StrengthIgniter.Core.Services
         void UpdateSecretQuestions(Guid userReference, IEnumerable<SecurityQuestionAnswerModel> questions);
         IEnumerable<SecurityQuestionModel> GetSecurityQuestions();
         /*
-         * TODO: 
-         *  Get questions that need resetting for user
+         * TODO: Get questions that need resetting for user
          *  Reset questions
          */
     }
