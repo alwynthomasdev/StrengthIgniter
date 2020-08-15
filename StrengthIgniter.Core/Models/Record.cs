@@ -7,7 +7,7 @@ namespace StrengthIgniter.Core.Models
 {
     public class RecordModel
     {
-        public int RecordId { get; internal set; }
+        public int RecordId { get; set; }
         public int UserId { get; internal set; }
         public int ExerciseId { get; set; }
         public DateTime Date { get; set; }
@@ -22,6 +22,7 @@ namespace StrengthIgniter.Core.Models
         //
         public Guid? UserReference { get; set; }
         public string ExerciseName { get; set; }
+        public Guid? ExerciseReference { get; set; }
 
         //
         public decimal? e1RM

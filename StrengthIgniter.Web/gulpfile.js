@@ -1,4 +1,5 @@
 ﻿const gulp = require('gulp');
+const rename = require('gulp-rename');
 
 const js = () => {
     return gulp.src([
@@ -28,6 +29,8 @@ const thirdPartyJs = () => {
             './node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
             './node_modules/moment/dist/moment.js',
             './node_modules/chart.js/dist/chart.min.js',
+            './node_modules/bootstrap-input-spinner/src/bootstrap-input-spinner.js',
+            './node_modules/alertifyjs/build/alertify.min.js'
         ]).pipe(gulp.dest('./wwwroot/js/'));
 };
 
@@ -41,8 +44,15 @@ const thirdPartyCss = () => {
             './node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css',
             './node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css.map',
             './node_modules/chart.js/dist/chart.min.css',
+            './node_modules/alertifyjs/build/css/alertify.min.css'
         ]).pipe(gulp.dest('./wwwroot/css/'));
 };
+const alertifyTheme = () => {
+    return gulp
+        .src(['./node_modules/alertifyjs/build/css/themes/default.min.css'])
+            .pipe(rename("alertify.theme.min.css"))
+            .pipe(gulp.dest('./wwwroot/css/'));
+}
 
 const thirdPartyFonts = () => {
     return gulp
@@ -51,4 +61,4 @@ const thirdPartyFonts = () => {
         ]).pipe(gulp.dest('./wwwroot/fonts/'));
 };
 
-gulp.task('default', gulp.parallel(js, css, icon, thirdPartyJs, thirdPartyCss, thirdPartyFonts));
+gulp.task('default', gulp.parallel(js, css, icon, thirdPartyJs, thirdPartyCss, thirdPartyFonts, alertifyTheme));

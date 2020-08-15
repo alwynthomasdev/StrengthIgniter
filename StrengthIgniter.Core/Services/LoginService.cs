@@ -86,7 +86,7 @@ namespace StrengthIgniter.Core.Services
                                         EmailAddress = user.EmailAddress
                                     };
 
-                                    CreateAuditEvent(AuditEventType.LoginSuccess, user.UserId, "", null);
+                                    CreateAuditEvent(dbConnection, dbTransaction, AuditEventType.LoginSuccess, user.UserId, "", null);
                                 }
                                 else// password is not valid
                                 {

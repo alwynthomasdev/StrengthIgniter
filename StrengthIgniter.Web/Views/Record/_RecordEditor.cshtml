@@ -1,0 +1,97 @@
+﻿@model RecordViewModel
+@{ 
+    Layout = null;
+    bool isUpdate = Model.RecordId > 0;
+    //string actionLabel = Model.RecordId > 0 ? "Edit" : "Add";
+}
+<div class="row">
+    <div class="col">
+        <h3>@(isUpdate ? "Update" : "Add") Record</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <form action="record/save" method="post">
+            <input asp-for="RecordId" type="hidden" />
+            <input asp-for="ExerciseReference" type="hidden" />
+
+            <div class="row">
+                <div class="col-6 col-sm-4 col-md-3">
+                    <div class="form-group">
+                        <label asp-for="Date"></label>
+                        <input asp-for="Date" type="text" class="form-control datepicker" placeholder="">
+                        <span asp-validation-for="Date" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <div class="form-group">
+                        <label asp-for="Sets"></label>
+                        <input asp-for="Sets" type="number" class="form-control" placeholder="">
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3 ">
+                    <div class="form-group">
+                        <label asp-for="Reps"></label>
+                        <input asp-for="Reps" type="number" class="form-control" placeholder="">
+                        <span asp-validation-for="Reps" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <div class="form-group">
+                        <label asp-for="Weight"></label>
+                        <div class="input-group mb-3">
+                            <input asp-for="Weight" type="number" step="0.5" class="form-control" placeholder="">
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon2"> KG</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <div class="form-group">
+                        <label asp-for="Bodyweight"></label>
+                        <div class="input-group mb-3">
+                            <input asp-for="Bodyweight" type="number" step="0.5" class="form-control" placeholder="">
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon2"> KG</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <div class="form-group">
+                        <label asp-for="RPE"></label>
+                        <input asp-for="RPE" type="number" step="0.5" class="form-control" placeholder="">
+                        <span asp-validation-for="RPE" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="Notes"></label>
+                        <textarea asp-for="Notes" class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">@(isUpdate ? "Update" : "Add")</button>
+                    </div>
+                </div>
+                @if (isUpdate)
+                {
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="form-group">
+                        <a href="#" class="btn btn-secondary btn-lg w-100 btn-cancel">Cancel</a>
+                    </div>
+                </div>
+                }
+            </div>
+
+        </form>
+    </div>
+</div>
+
+    

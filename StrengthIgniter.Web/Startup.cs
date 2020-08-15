@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -59,6 +60,11 @@ namespace StrengthIgniter.Web
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-gb");
+            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-gb");
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

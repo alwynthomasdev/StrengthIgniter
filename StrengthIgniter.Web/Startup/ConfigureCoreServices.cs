@@ -46,6 +46,7 @@ namespace StrengthIgniter.Web
             services.AddUserSecurityQuestionResetService();
 
             services.AddExerciseService();
+            services.AddRecordService();
 
             services.AddRecordImportSchemaService();
             services.AddRecordImportService();
@@ -115,6 +116,17 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<IExerciseDataAccess>(),
                 sp.GetRequiredService<IRecordDataAccess>(),
                 sp.GetRequiredService<IPaginationUtility>(),
+                sp.GetRequiredService<IAuditEventDataAccess>(),
+                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<DatabaseConnectionFactory>()
+            ));
+        }
+
+        public static void AddRecordService(this IServiceCollection services)
+        {
+            services.TryAddTransient<IRecordService>(sp => new RecordService(
+                sp.GetRequiredService<IRecordDataAccess>(),
+                sp.GetRequiredService<IExerciseDataAccess>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
                 sp.GetRequiredService<ILoggerFactory>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()

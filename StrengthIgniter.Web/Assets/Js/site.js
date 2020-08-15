@@ -2,6 +2,7 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
+'use strict';
 
 var createDelayedEventHandler = function (callback, ms) {
     var timer = 0;
@@ -20,6 +21,23 @@ var supressEnterKeyPressEvent = function (e) {
     }
 };
 
+function getFormData($form) {
+    var unindexed_array = $form.serializeArray();
+    var indexed_array = {};
+
+    $.map(unindexed_array, function (n, i) {
+        indexed_array[n['name']] = n['value'];
+    });
+
+    return indexed_array;
+}
+
+function clearCanvas(canvasElementId) {
+    var canvas = document.getElementById(canvasElementId);
+    var context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
 function Paginator(options) {
     this.$table = options.table;
     this.url = options.url;
@@ -28,12 +46,16 @@ function Paginator(options) {
     this.pageNumber = 1;
     this.itemCount = 0;
 
-    this.sendRequest = function (filters) {
+    this.sendRequest = function (filters, reset = false) {
         if (filters) {
             $this.filters = filters;
         }
 
         var data = $this.filters;
+        if (reset) {
+            $this.pageNumber = 1;
+        }
+
         data.pageNumber = $this.pageNumber;
         data.pageLength = $this.pageLength;
 
@@ -231,13 +253,13 @@ function RenderMaxChart(reference, canvasElementId) {
                 datasets: [{
                     label: 'e1RM',
                     fill: false,
-                    borderColor: '#900',
+                    borderColor: '#1b6ec2',
                     data: $.map(data, function (i) {
                         return { x: i.date, y: i.e1RM, reps: i.reps, weight: i.weightKg, rpe: i.rpe }
                     })
                 },
                 {
-                    borderColor: '#f66',
+                    borderColor: '#78b3ed',
                     label: 'RPE Max',
                     borderDash: [5, 5],
                     fill: false,
@@ -309,6 +331,59 @@ function RenderMaxChart(reference, canvasElementId) {
                     }]
                 }
             }
+        });
+
+    });
+}
+
+var configureRecordEditor = function ($recordFormContainer, fnSavedCallback, exerciseReference = null, recordId = null) {
+
+    var url = '/record/editor/' + exerciseReference;
+    if (recordId !== null) url = '/record/editor/' + recordId;
+
+    $.get(url, function (html) {
+        $recordFormContainer.html(html);
+
+        $recordFormContainer.find('.datepicker').datepicker({
+            format: 'dd/mm/yyyy'
+        });
+
+        //submit
+        var $recordForm = $recordFormContainer.find('form');
+        $recordForm.off('submit').on('submit', function (e) {
+            e.preventDefault();
+            var $this = $(this);
+
+            $.validator.unobtrusive.parse($this);
+            $this.validate();
+            if ($this.valid()) {
+
+                var data = getFormData($this);
+
+                $.ajax({
+                    url: '/' + $this.attr('action'),
+                    method: 'POST',
+                    data: data
+                })
+                    .done(function (resp) {
+                        alertify.success('Record Saved.');
+                        //refresh the record editor with no record id
+                        configureRecordEditor($recordFormContainer, fnSavedCallback, exerciseReference, null);
+                        fnSavedCallback(); 
+                    })
+                    .fail(function (err) {
+                        console.log(err);
+                        alertify.error('Sorry, failed to save record.');
+                        //TODO: something in the ui
+                    });
+            }
+        });
+
+        //cancel click
+        $recordFormContainer.off('click').on('click', 'form .btn-cancel', function (e) {
+            e.preventDefault();
+            //refresh the record editor with no record id
+            configureRecordEditor($recordFormContainer, fnSavedCallback, exerciseReference, null);
         });
 
     });

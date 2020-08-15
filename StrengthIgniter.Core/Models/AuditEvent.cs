@@ -43,6 +43,10 @@ namespace StrengthIgniter.Core.Models
 
         public const string SecurityQuestionsUpdated = "SecurityQuestionsUpdated";
 
+        public const string RecordUpdate = "RecordUpdate";
+        public const string RecordInsert = "RecordInsert";
+        public const string RecordDelete = "RecordDelete";
+
         public const string ImportNew = "ImportNew";
         public const string ImportProcessed = "ImportProcessed";
         public const string ImportRowProcessed = "ImportRowProcessed";
