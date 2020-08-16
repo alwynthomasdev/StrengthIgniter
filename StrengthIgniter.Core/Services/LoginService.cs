@@ -116,7 +116,7 @@ namespace StrengthIgniter.Core.Services
                         return response;
                     }
                 }
-                else// always run the hash validator (computationally expensive)
+                else//if no user, always run the hash validator (computationally expensive)
                 {
                     _HashUtility.Validate("RunFakeHashValidator", _HashUtility.GenerateFakeHash());
                 }

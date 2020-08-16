@@ -27,9 +27,9 @@ namespace StrengthIgniter.Core.Services
     public class ExerciseService : ServiceBase, IExerciseService
     {
         #region CTOR
-        IExerciseDataAccess _ExerciseDal;
-        IRecordDataAccess _RecordDal;
-        IPaginationUtility _PaginationUtility;
+        private readonly IExerciseDataAccess _ExerciseDal;
+        private readonly IRecordDataAccess _RecordDal;
+        private readonly IPaginationUtility _PaginationUtility;
 
         public ExerciseService(
             IExerciseDataAccess exerciseDal,
