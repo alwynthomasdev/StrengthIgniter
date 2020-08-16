@@ -40,10 +40,10 @@ namespace StrengthIgniter.Core.Services
             IHashUtility hashUtility,
             //
             IAuditEventDataAccess auditEventDal,
-            ILoggerFactory loggerFactory,
+            ILogger<UserSecurityQuestionResetService> logger,
             DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDal, loggerFactory.CreateLogger(typeof(UserSecurityQuestionResetService)), dbConnectionFactory.GetConnection)
+            : base(auditEventDal, logger, dbConnectionFactory.GetConnection)
         {
             _Config = config;
             _UserDal = userDal;

@@ -1,17 +1,20 @@
 ﻿@model IEnumerable<RecordImportModel>
-@{ 
+@{
     ViewData["Title"] = "Imports";
 }
 
 <div class="row">
-    <div class="col">
+    <div class="col-12 col-md-6">
         <h2>Imports</h2>
-        <hr />
+    </div>
+    <div class="col-12 col-md-6 text-xs-left text-md-right">
+        <a asp-action="Import" class="btn btn-primary btn-lg">New</a>
     </div>
 </div>
+<hr />
 
 <table class="table">
-    <thead class="thead-dark"> 
+    <thead class="thead-dark">
         <tr>
             <th>Import</th>
             <th>Date/Time (UTC)</th>
@@ -19,16 +22,19 @@
         </tr>
     </thead>
     <tbody>
-        @foreach(RecordImportModel import in Model)
+        @if (Model.HasItems())
         {
-        <tr>
-            <td>@import.Name</td>
-            <td>@import.ImportDateTimeUtc.ToShortDateString() @import.ImportDateTimeUtc.ToShortTimeString()</td>
-            <td>
-                <a asp-action="Import" asp-route-reference="@import.Reference" class="btn btn-info btn-sm">View</a>
-                @*<a asp-action="Delete" asp-route-reference="@import.Reference" class="btn btn-danger btn-sm">Delete</a>*@
-            </td>
-        </tr>
+            foreach (RecordImportModel import in Model)
+            {
+                <tr>
+                    <td>@import.Name</td>
+                    <td>@import.ImportDateTimeUtc.ToShortDateString() @import.ImportDateTimeUtc.ToShortTimeString()</td>
+                    <td>
+                        <a asp-action="Import" asp-route-reference="@import.Reference" class="btn btn-info btn-sm">View</a>
+                        @*<a asp-action="Delete" asp-route-reference="@import.Reference" class="btn btn-danger btn-sm">Delete</a>*@
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>

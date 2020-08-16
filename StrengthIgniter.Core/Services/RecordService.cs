@@ -29,10 +29,10 @@ namespace StrengthIgniter.Core.Services
             IExerciseDataAccess exerciseDal,
             //
             IAuditEventDataAccess auditEventDal,
-            ILoggerFactory loggerFactory,
+            ILogger<RecordService> logger,
             DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDal, loggerFactory.CreateLogger(typeof(RecordImportService)), dbConnectionFactory.GetConnection)
+            : base(auditEventDal, logger, dbConnectionFactory.GetConnection)
         {
             _RecordDal = recordDal;
             _ExerciseDal = exerciseDal;

@@ -24,11 +24,11 @@ namespace StrengthIgniter.Core.Services
         public RecordImportSchemaService(
             IRecordImportSchemaDataAccess recordImportSchemeDal,
             //
-            ILoggerFactory loggerFactory,
+            ILogger<RecordImportSchemaService> logger,
             IAuditEventDataAccess auditEventDataAccess,
             DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDataAccess, loggerFactory.CreateLogger(typeof(RecordImportSchemaService)), dbConnectionFactory.GetConnection)
+            : base(auditEventDataAccess, logger, dbConnectionFactory.GetConnection)
         {
             _RecordImportSchemeDal = recordImportSchemeDal;
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CodeFluff.Extensions.IEnumerable;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using StrengthIgniter.Core.Models;
@@ -13,6 +14,8 @@ namespace StrengthIgniter.Web.Controllers
 {
     public class ExerciseController : Controller
     {
+        #region CTOR
+
         private readonly IExerciseService _ExerciseService;
         private readonly ExerciseSearchConfig _ExerciseSearchConfig;
 
@@ -25,6 +28,8 @@ namespace StrengthIgniter.Web.Controllers
             _ExerciseSearchConfig = exerciseSearchConfigOptions.Value;
         }
 
+        #endregion
+
         public IActionResult Index()
         {
             return View();
@@ -36,6 +41,8 @@ namespace StrengthIgniter.Web.Controllers
             ExerciseModel exercise = _ExerciseService.GetByReference(reference);
             return View("Exercise", exercise);
         }
+
+        #region Paged Action Methods
 
         public IActionResult PagedSearch(int pageNumber, int pageLength, string searchString = "")
         {
@@ -52,7 +59,7 @@ namespace StrengthIgniter.Web.Controllers
                 PageLength = pageLength
             });
             return Json(new { 
-                items = response.Exercises.Select(e => new { Reference = e.Reference, Name = e.Name }), 
+                items = response.Exercises != null ? response.Exercises.Select(e => new { Reference = e.Reference, Name = e.Name }) : null, 
                 total = response.TotalMatches 
             });
         }
@@ -77,6 +84,8 @@ namespace StrengthIgniter.Web.Controllers
                 total = response.TotalMatches
             });
         }
+
+        #endregion
 
     }
 }

@@ -21,6 +21,8 @@ namespace StrengthIgniter.Web.Controllers
 {
     public class AccountController : Controller
     {
+        #region CTOR
+
         private readonly ILoginService _LoginService;
         private readonly IRegistrationService _RegistrationService;
         private readonly IPasswordResetService _PasswordResetService;
@@ -39,6 +41,9 @@ namespace StrengthIgniter.Web.Controllers
             _UserSecurityQuestionResetService = userSecurityQuestionResetService;
         }
 
+        #endregion
+
+        //TODO: account management page
         //public IActionResult Index()
         //{
         //    return View();

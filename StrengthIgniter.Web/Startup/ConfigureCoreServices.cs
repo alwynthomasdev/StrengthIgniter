@@ -63,7 +63,7 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<IEmailUtility>(),
                 sp.GetRequiredService<ITemplateUtility>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
-                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<ILoggerFactory>().CreateLogger<LoginService>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()
             ));
         }
@@ -78,7 +78,7 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<IEmailUtility>(),
                 sp.GetRequiredService<ITemplateUtility>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
-                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<ILoggerFactory>().CreateLogger<RegistrationService>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()
             ));
         }
@@ -91,7 +91,7 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<IHashUtility>(),
                 sp.GetRequiredService<IEmailUtility>(),
                 sp.GetRequiredService<ITemplateUtility>(),
-                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<ILoggerFactory>().CreateLogger<PasswordResetService>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()
             ));
@@ -105,7 +105,7 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<ISecurityQuestionDataAccess>(),
                 sp.GetRequiredService<IHashUtility>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
-                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<ILoggerFactory>().CreateLogger<UserSecurityQuestionResetService>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()
             ));
         }
@@ -117,7 +117,7 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<IRecordDataAccess>(),
                 sp.GetRequiredService<IPaginationUtility>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
-                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<ILoggerFactory>().CreateLogger<ExerciseService>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()
             ));
         }
@@ -128,7 +128,7 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<IRecordDataAccess>(),
                 sp.GetRequiredService<IExerciseDataAccess>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
-                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<ILoggerFactory>().CreateLogger<RecordService>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()
             ));
         }
@@ -137,7 +137,7 @@ namespace StrengthIgniter.Web
         {
             services.TryAddTransient<IRecordImportSchemaService>(sp => new RecordImportSchemaService(
                 sp.GetRequiredService<IRecordImportSchemaDataAccess>(),
-                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<ILoggerFactory>().CreateLogger<RecordImportSchemaService>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()
             ));
@@ -151,7 +151,7 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<IExerciseDataAccess>(),
                 sp.GetRequiredService<IRecordDataAccess>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
-                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<ILoggerFactory>().CreateLogger<RecordImportService>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()
             ));
         }

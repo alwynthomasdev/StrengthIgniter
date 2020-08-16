@@ -24,7 +24,8 @@ namespace StrengthIgniter.Core.Models
         public string ExerciseName { get; set; }
         public Guid? ExerciseReference { get; set; }
 
-        //
+        #region Calculated Properties
+
         public decimal? e1RM
         {
             get
@@ -50,6 +51,24 @@ namespace StrengthIgniter.Core.Models
                 else return null;
             }
         }
+
+        public int? VolumeKg
+        {
+            get
+            {
+                if (this.WeightKg.HasValue)
+                {
+                    int sets = 1;
+                    if (this.Sets.HasValue)
+                        sets = this.Sets.Value;
+
+                    return (int)(sets * this.Reps * this.WeightKg.Value);
+                }
+                else return null;
+            }
+        }
+
+        #endregion
 
     }
 }

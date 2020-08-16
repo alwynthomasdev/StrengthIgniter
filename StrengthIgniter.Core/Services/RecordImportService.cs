@@ -46,10 +46,10 @@ namespace StrengthIgniter.Core.Services
             IRecordDataAccess recordDal,
             //
             IAuditEventDataAccess auditEventDal,
-            ILoggerFactory loggerFactory,
+            ILogger<RecordImportService> logger,
             DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDal, loggerFactory.CreateLogger(typeof(RecordImportService)), dbConnectionFactory.GetConnection)
+            : base(auditEventDal, logger, dbConnectionFactory.GetConnection)
         {
             _RecordImportDal = recordImportDal;
             _RecordImportSchemaDal = recordImportSchemaDal;
@@ -267,7 +267,8 @@ namespace StrengthIgniter.Core.Services
             //Validate exercise
             if (!string.IsNullOrEmpty(row.ExerciseText))
             {
-                RecordImportSchemaExerciseMapModel map = schema.ExerciseMap.Where(m => m.Text == row.ExerciseText).FirstOrDefault();
+                //TODO: make case sensitivity configurable in schema ???
+                RecordImportSchemaExerciseMapModel map = schema.ExerciseMap.Where(m => m.Text.ToLower() == row.ExerciseText.ToLower()).FirstOrDefault();
                 if (map != null)
                 {
                     ExerciseModel exercise = _ExerciseDal.GetById(map.ExerciseId);
@@ -276,7 +277,7 @@ namespace StrengthIgniter.Core.Services
                         row.ExerciseText = exercise.Name;
                         row.ExerciseId = map.ExerciseId;
                     }
-                    else throw new Exception($"Unable to find exercise with id {map.ExerciseId}.");//TODO: should this be an exception
+                    else throw new Exception($"Unable to find exercise with id {map.ExerciseId}.");//TODO: should this be an exception ???
                 }
                 else errors.Add(ErrorCode.ExerciseCannotMap);
             }

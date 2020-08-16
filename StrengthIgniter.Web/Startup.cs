@@ -19,14 +19,13 @@ namespace StrengthIgniter.Web
 
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+        public IWebHostEnvironment Environment { get; }
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
             Environment = env;
         }
-
-        public IConfiguration Configuration { get; }
-        public IWebHostEnvironment Environment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -60,10 +59,6 @@ namespace StrengthIgniter.Web
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-
-            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-gb");
-            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-gb");
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

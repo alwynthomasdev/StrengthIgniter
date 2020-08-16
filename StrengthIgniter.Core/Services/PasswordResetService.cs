@@ -37,11 +37,11 @@ namespace StrengthIgniter.Core.Services
             IEmailUtility emailUtility,
             ITemplateUtility templateUtility,
             //
-            ILoggerFactory loggerFactory,
+            ILogger<PasswordResetService> logger,
             IAuditEventDataAccess auditEventDataAccess,
             DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDataAccess, loggerFactory.CreateLogger(typeof(PasswordResetService)), dbConnectionFactory.GetConnection)
+            : base(auditEventDataAccess, logger, dbConnectionFactory.GetConnection)
         {
             _UserDal = userDal;
             _HashUtility = hashUtility;

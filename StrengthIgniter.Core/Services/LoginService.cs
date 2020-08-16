@@ -34,10 +34,10 @@ namespace StrengthIgniter.Core.Services
             ITemplateUtility templateUtility,
             //
             IAuditEventDataAccess auditEventDal,
-            ILoggerFactory loggerFactory,
+            ILogger<LoginService> logger,
             DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDal, loggerFactory.CreateLogger(typeof(LoginService)), dbConnectionFactory.GetConnection)
+            : base(auditEventDal, logger, dbConnectionFactory.GetConnection)
         {
             _Config = config;
             _UserDal = userDal;
@@ -94,7 +94,7 @@ namespace StrengthIgniter.Core.Services
                                     if (user.FailedLoginAttemptCount >= _Config.MaxFailedAttempts)
                                     {
                                         user.FailedLoginAttemptCount = 0;
-                                        user.LockoutEndDateTimeUtc = DateTime.UtcNow.AddMinutes(_Config.LockoutTimeSpanMinuets);
+                                        user.LockoutEndDateTimeUtc = DateTime.UtcNow.AddMinutes(_Config.LockoutTimeSpanMinutes);
 
                                         response = new LoginResponse { ResponseType = LoginResponseType.AccountLocked };
                                         accountLockedAuditEventId = CreateAuditEvent(AuditEventType.AccountLocked, user.UserId, "", null);
@@ -150,7 +150,7 @@ namespace StrengthIgniter.Core.Services
             {
                 Subject = _Config.AccountLockoutEmailSubject,
                 Username = user.Name,
-                LockoutMinuets = _Config.LockoutTimeSpanMinuets
+                LockoutMinutes = _Config.LockoutTimeSpanMinutes
             });
 
             EmailMessageModel msg = new EmailMessageModel
@@ -174,7 +174,7 @@ namespace StrengthIgniter.Core.Services
     public class LoginServiceConfig
     {
         public int MaxFailedAttempts { get; set; }
-        public int LockoutTimeSpanMinuets { get; set; }
+        public int LockoutTimeSpanMinutes { get; set; }
 
         public string AccountLockoutEmailSubject { get; set; }
         public string AccountLockoutEmailTemplatePath { get; set; }

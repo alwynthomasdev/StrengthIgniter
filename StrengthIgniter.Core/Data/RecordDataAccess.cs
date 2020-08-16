@@ -13,7 +13,8 @@ namespace StrengthIgniter.Core.Data
     {
         RecordModel GetByIdAndUser(int id, Guid userReference);
         IEnumerable<RecordModel> GetByExerciseAndUser(Guid exerciseReference, Guid userReference);
-        Tuple<IEnumerable<RecordModel>, int> GetPagedByExerciseAndUser(Guid exerciseReference, Guid userReference, int? offset, int? fetch);
+        Tuple<IEnumerable<RecordModel>, int> GetByExerciseAndUser(Guid exerciseReference, Guid userReference, int? offset, int? fetch);
+
         int Insert(IDbConnection dbConnection, IDbTransaction dbTransaction, RecordModel record);
         void Update(IDbConnection dbConnection, IDbTransaction dbTransaction, RecordModel record);
         void Delete(IDbConnection dbConnection, IDbTransaction dbTransaction, int recordId, Guid userReference);
@@ -26,6 +27,53 @@ namespace StrengthIgniter.Core.Data
         {
         }
         #endregion
+
+        public RecordModel GetByIdAndUser(int id, Guid userReference)
+        {
+            #region SQL
+            string sql = @"
+SELECT TOP 1 [r].[RecordId]
+      ,[r].[UserId]
+      ,[r].[ExerciseId]
+      ,[r].[Date]
+      ,[r].[Sets]
+      ,[r].[Reps]
+      ,[r].[WeightKg]
+      ,[r].[BodyweightKg]
+      ,[r].[RPE]
+      ,[r].[Notes]
+      ,[r].[CreatedDateTimeUtc]
+      ,[e].[Name] AS [ExerciseName]
+      ,[u].[Reference] AS [UserReference]
+      ,[e].[Reference] AS [ExerciseReference]
+FROM [Record] [r]
+	INNER JOIN [User] [u]
+		ON [r].[UserId] = [u].[UserId]
+    INNER JOIN [Exercise] [e]
+        ON [r].[ExerciseId] = [e].[ExerciseId]
+WHERE 
+	[r].[RecordId] = @RecordId AND
+	[u].[Reference] = @UserReference
+".Trim();
+
+            #endregion
+
+            object parameters = new { RecordId = id, UserReference = userReference };
+
+            try
+            {
+                using (IDbConnection dbConnection = GetConnection())
+                {
+                    dbConnection.Open();
+                    return dbConnection.QueryFirstOrDefault<RecordModel>(sql, parameters);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
+
+        }
 
         public IEnumerable<RecordModel> GetByExerciseAndUser(Guid exerciseReference, Guid userReference)
         {
@@ -43,6 +91,8 @@ SELECT [r].[RecordId]
       ,[r].[RPE]
       ,[r].[Notes]
       ,[r].[CreatedDateTimeUtc]
+      ,[u].[Reference] AS [UserReference]
+      ,[e].[Reference] AS [ExerciseReference]
 FROM [Record] [r]
 	INNER JOIN [User] [u]
 		ON [r].[UserId] = [u].[UserId]
@@ -70,7 +120,7 @@ WHERE
             }
         }
 
-        public Tuple<IEnumerable<RecordModel>, int> GetPagedByExerciseAndUser(Guid exerciseReference, Guid userReference, int? offset, int? fetch)
+        public Tuple<IEnumerable<RecordModel>, int> GetByExerciseAndUser(Guid exerciseReference, Guid userReference, int? offset, int? fetch)
         {
             #region SQL
             string sql = @"
@@ -87,6 +137,8 @@ SELECT {0}
       ,[r].[RPE]
       ,[r].[Notes]
       ,[r].[CreatedDateTimeUtc]
+      ,[u].[Reference] AS [UserReference]
+      ,[e].[Reference] AS [ExerciseReference]
 FROM [Record] [r]
 	INNER JOIN [User] [u]
 		ON [r].[UserId] = [u].[UserId]
@@ -267,52 +319,5 @@ WHERE
             }
 
         }
-
-        public RecordModel GetByIdAndUser(int id, Guid userReference)
-        {
-            #region SQL
-            string sql = @"
-SELECT TOP 1 [r].[RecordId]
-      ,[r].[UserId]
-      ,[r].[ExerciseId]
-      ,[r].[Date]
-      ,[r].[Sets]
-      ,[r].[Reps]
-      ,[r].[WeightKg]
-      ,[r].[BodyweightKg]
-      ,[r].[RPE]
-      ,[r].[Notes]
-      ,[r].[CreatedDateTimeUtc]
-      ,[e].[Name] AS [ExerciseName]
-      ,[e].[Reference] AS [ExerciseReference]
-FROM [Record] [r]
-	INNER JOIN [User] [u]
-		ON [r].[UserId] = [u].[UserId]
-    INNER JOIN [Exercise] [e]
-        ON [r].[ExerciseId] = [e].[ExerciseId]
-WHERE 
-	[r].[RecordId] = @RecordId AND
-	[u].[Reference] = @UserReference
-".Trim();
-
-            #endregion
-
-            object parameters = new { RecordId = id, UserReference = userReference };
-
-            try
-            {
-                using (IDbConnection dbConnection = GetConnection())
-                {
-                    dbConnection.Open();
-                    return dbConnection.QueryFirstOrDefault<RecordModel>(sql, parameters);
-                }
-            }
-            catch(Exception ex)
-            {
-                throw new DataAccessException(ex, sql, parameters);
-            }
-
-        }
-
     }
 }

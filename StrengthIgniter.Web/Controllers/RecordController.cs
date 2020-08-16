@@ -12,6 +12,8 @@ namespace StrengthIgniter.Web.Controllers
 {
     public class RecordController : Controller
     {
+        #region CTOR
+
         private readonly IRecordService _RecordService;
         public RecordController(
             IRecordService recordService
@@ -19,6 +21,8 @@ namespace StrengthIgniter.Web.Controllers
         {
             _RecordService = recordService;
         }
+
+        #endregion
 
         [Route("record/editor/{exerciseReference:guid}")]
         public IActionResult Editor(Guid exerciseReference)
@@ -47,7 +51,6 @@ namespace StrengthIgniter.Web.Controllers
         [HttpPost]
         public IActionResult Save(RecordViewModel vm)
         {
-            //TODO: return something more meaningful
             if(ModelState.IsValid)
             {
                 _RecordService.SaveRecord(new RecordModel
@@ -63,6 +66,7 @@ namespace StrengthIgniter.Web.Controllers
                     RPE = vm.RPE,
                     Notes = vm.Notes
                 });
+                //TODO: return something more meaningful than true/false
                 return Json(true);
             }
             return Json(false);

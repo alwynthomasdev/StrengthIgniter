@@ -41,10 +41,10 @@ namespace StrengthIgniter.Core.Services
             ITemplateUtility templateUtility,
             //
             IAuditEventDataAccess auditEventDal,
-            ILoggerFactory loggerFactory,
+            ILogger<RegistrationService> logger,
             DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDal, loggerFactory.CreateLogger(typeof(RegistrationService)), dbConnectionFactory.GetConnection)
+            : base(auditEventDal, logger, dbConnectionFactory.GetConnection)
         {
             _Config = config;
             _UserDal = userDal;
@@ -331,7 +331,7 @@ namespace StrengthIgniter.Core.Services
 
     }
 
-    #region Models
+    #region RegistrationService Models
 
     public class RegistrationServiceConfig
     {
@@ -371,28 +371,6 @@ namespace StrengthIgniter.Core.Services
         Success = 1,
         NoAccount = -1,
         AlreadyValid = -2
-    }
-
-    #endregion
-
-    #region Factory
-
-    public static class RegistrationFactory
-    {
-        public static IRegistrationService Build(
-            RegistrationServiceConfig config,
-            IHashUtility hashUtility,
-            IEmailUtility emailUtility,
-            ITemplateUtility templateUtility,
-            ILoggerFactory loggerFactory,
-            DatabaseConnectionFactory dbConnectionFactory)
-        {
-            IUserDataAccess userDal = new UserDataAccess(dbConnectionFactory);
-            ISecurityQuestionDataAccess securityQuestionDal = new SecurityQuestionDataAccess(dbConnectionFactory);
-            IAuditEventDataAccess auditEventDal = new AuditEventDataAccess(dbConnectionFactory);
-
-            return new RegistrationService(config, userDal, securityQuestionDal, hashUtility, emailUtility, templateUtility, auditEventDal, loggerFactory, dbConnectionFactory);
-        }
     }
 
     #endregion

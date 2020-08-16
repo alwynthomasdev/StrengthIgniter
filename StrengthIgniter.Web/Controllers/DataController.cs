@@ -12,19 +12,7 @@ namespace StrengthIgniter.Web.Controllers
 {
     public class DataController : Controller
     {
-
-        /*
-         * 
-         * New Import Page (Data/Import
-         * Import page (Data/Import/{Reference}
-         * - Delete Import
-         * - Delete Row
-         * - Edit Row
-         * - Process Row
-         * Import Row Page (Data/Import/Row/{reference}
-         * - Delete / Edit / Process
-         * 
-         */
+        #region CTOR
 
         private readonly IRecordImportService _RecordImportService;
         private readonly IRecordImportSchemaService _RecordImportSchemaService;
@@ -37,6 +25,8 @@ namespace StrengthIgniter.Web.Controllers
             _RecordImportService = recordImportService;
             _RecordImportSchemaService = recordImportSchemaService;
         }
+
+        #endregion
 
         public IActionResult Index()
         {
@@ -88,12 +78,10 @@ namespace StrengthIgniter.Web.Controllers
             return RedirectToAction("import", new { reference = reference });
         }
 
-
         public IActionResult Delete(Guid reference)
         {
             _RecordImportService.DeleteImport(reference, User.GetNameIdentifier());
             return RedirectToAction("");
         }
-
     }
 }

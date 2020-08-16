@@ -16,9 +16,9 @@ namespace StrengthIgniter.Core.Data
         RecordImportRowModel GetRowById(int rowId, Guid userReference);
 
         void Insert(IDbConnection dbConnection, IDbTransaction dbTransaction, RecordImportModel import);
-        void UpdateRowStatus(IDbConnection dbConnection, IDbTransaction dbTransaction, int rowId, Guid userReference, ImportRowStatusCode status);
-
         void DeleteByReference(IDbConnection dbConnection, IDbTransaction dbTransaction, Guid reference, Guid userReference);
+
+        void UpdateRowStatus(IDbConnection dbConnection, IDbTransaction dbTransaction, int rowId, Guid userReference, ImportRowStatusCode status);
     }
 
     public class RecordImportDataAccess : DataAccessBase, IRecordImportDataAccess
@@ -29,20 +29,23 @@ namespace StrengthIgniter.Core.Data
         }
         #endregion
 
-
         public RecordImportModel GetByReference(Guid reference, Guid userReference)
         {
             #region SQL
             string sql = @"
-SELECT TOP 1 [RecordImportId]
+SELECT TOP 1 [ri].[RecordImportId]
       ,[ri].[Reference]
       ,[ri].[UserId]
       ,[ri].[RecordImportSchemaId]
       ,[ri].[Name]
       ,[ri].[ImportDateTimeUtc]
+      ,[u].[Reference] AS [UserReference]
+      ,[ris].[Reference] AS [RecordImportSchemaReference]
 FROM [RecordImport] [ri]
     INNER JOIN [User] u
         ON [ri].[UserId] = [u].[UserId]
+    INNER JOIN [RecordImportSchema] [ris]
+        ON [ri].[RecordImportSchemaId] = [ris].[RecordImportSchemaId]
 WHERE
     [ri].[IsDeleted] = 0 AND
     [ri].[Reference] = @Reference AND
@@ -85,9 +88,13 @@ SELECT [RecordImportId]
       ,[ri].[RecordImportSchemaId]
       ,[ri].[Name]
       ,[ri].[ImportDateTimeUtc]
+      ,[u].[Reference] AS [UserReference]
+      ,[ris].[Reference] AS [RecordImportSchemaReference]
 FROM [RecordImport] [ri]
     INNER JOIN [User] u
         ON [ri].[UserId] = [u].[UserId]
+    INNER JOIN [RecordImportSchema] [ris]
+        ON [ri].[RecordImportSchemaId] = [ris].[RecordImportSchemaId]
 WHERE
     [ri].[IsDeleted] = 0 AND
     [u]. [Reference] = @UserReference
@@ -120,6 +127,61 @@ WHERE
                 throw new DataAccessException(ex, sql, parameters);
             }
 
+        }
+
+        public RecordImportRowModel GetRowById(int rowId, Guid userReference)
+        {
+            #region SQL
+            string sql = @"
+SELECT TOP 1 
+       [riw].[RecordImportRowId]
+      ,[riw].[RecordImportId]
+      ,[riw].[StatusCode]
+      ,[riw].[ExerciseText]
+      ,[riw].[DateText]
+      ,[riw].[WeightKgText]
+      ,[riw].[WeightLbText]
+      ,[riw].[BodyweightKgText]
+      ,[riw].[BodyweightLbText]
+      ,[riw].[SetText]
+      ,[riw].[RepText]
+      ,[riw].[RpeText]
+      ,[riw].[Notes]
+      ,[riw].[ExerciseId]
+  FROM [RecordImportRow] [riw]
+	INNER JOIN [RecordImport] [ri]
+		ON [riw].[RecordImportId] = [ri].[RecordImportId]
+	INNER JOIN [User] [u]
+		ON [ri].[UserId] = [u].[UserId]
+WHERE
+    [riw].[RecordImportRowId] = @RecordImportRowId AND
+	[u].[Reference] = @UserReference AND
+	[ri].[IsDeleted] = 0
+".Trim();
+            #endregion
+
+            object parameters = new { RecordImportRowId = rowId, UserReference = userReference };
+
+            try
+            {
+                using (IDbConnection dbConnection = GetConnection())
+                {
+                    RecordImportRowModel row = dbConnection.QueryFirstOrDefault<RecordImportRowModel>(sql, parameters);
+                    if (row != null)
+                    {
+                        row.Errors = GetImportRowErrors(dbConnection, rowId);
+                    }
+                    return row;
+                }
+            }
+            catch (DataAccessException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
         }
 
         public void Insert(IDbConnection dbConnection, IDbTransaction dbTransaction, RecordImportModel import)
@@ -197,61 +259,6 @@ WHERE
             }
 
             #endregion
-        }
-
-        public RecordImportRowModel GetRowById(int rowId, Guid userReference)
-        {
-            #region SQL
-            string sql = @"
-SELECT TOP 1 
-       [riw].[RecordImportRowId]
-      ,[riw].[RecordImportId]
-      ,[riw].[StatusCode]
-      ,[riw].[ExerciseText]
-      ,[riw].[DateText]
-      ,[riw].[WeightKgText]
-      ,[riw].[WeightLbText]
-      ,[riw].[BodyweightKgText]
-      ,[riw].[BodyweightLbText]
-      ,[riw].[SetText]
-      ,[riw].[RepText]
-      ,[riw].[RpeText]
-      ,[riw].[Notes]
-      ,[riw].[ExerciseId]
-  FROM [RecordImportRow] [riw]
-	INNER JOIN [RecordImport] [ri]
-		ON [riw].[RecordImportId] = [ri].[RecordImportId]
-	INNER JOIN [User] [u]
-		ON [ri].[UserId] = [u].[UserId]
-WHERE
-    [riw].[RecordImportRowId] = @RecordImportRowId AND
-	[u].[Reference] = @UserReference AND
-	[ri].[IsDeleted] = 0
-".Trim();
-            #endregion
-
-            object parameters = new { RecordImportRowId = rowId, UserReference = userReference };
-
-            try
-            {
-                using (IDbConnection dbConnection = GetConnection())
-                {
-                    RecordImportRowModel row = dbConnection.QueryFirstOrDefault<RecordImportRowModel>(sql, parameters);
-                    if(row != null)
-                    {
-                        row.Errors = GetImportRowErrors(dbConnection, rowId);
-                    }
-                    return row;
-                }
-            }
-            catch(DataAccessException)
-            {
-                throw;
-            }
-            catch(Exception ex)
-            {
-                throw new DataAccessException(ex, sql, parameters);
-            }
         }
 
         public void UpdateRowStatus(IDbConnection dbConnection, IDbTransaction dbTransaction, int rowId, Guid userReference, ImportRowStatusCode status)
@@ -376,13 +383,15 @@ VALUES
             {
                 foreach (RecordImportRowErrorModel error in errors)
                 {
+                    object parameters = new { RecordImportRowId = rowId, ErrorCode = error.ErrorCode };
+
                     try
                     {
-                        dbConnection.Execute(sql, error, dbTransaction);
+                        dbConnection.Execute(sql, parameters, dbTransaction);
                     }
                     catch (Exception ex)
                     {
-                        throw new DataAccessException(ex, sql, error);
+                        throw new DataAccessException(ex, sql, parameters);
                     }
                 }
             }

@@ -37,10 +37,10 @@ namespace StrengthIgniter.Core.Services
             IPaginationUtility paginationUtility,
             //
             IAuditEventDataAccess auditEventDal,
-            ILoggerFactory loggerFactory,
+            ILogger<ExerciseService> logger,
             DatabaseConnectionFactory dbConnectionFactory
         )
-            : base(auditEventDal, loggerFactory.CreateLogger(typeof(RecordImportService)), dbConnectionFactory.GetConnection)
+            : base(auditEventDal, logger, dbConnectionFactory.GetConnection)
         {
             _ExerciseDal = exerciseDal;
             _RecordDal = recordDal;
@@ -77,7 +77,7 @@ namespace StrengthIgniter.Core.Services
             try
             {
                 int? offset = _PaginationUtility.GetPageOffset(request.PageNo, request.PageLength);
-                Tuple<IEnumerable<RecordModel>, int> result = _RecordDal.GetPagedByExerciseAndUser(request.ExerciseReference, request.UserReference, offset, request.PageLength);
+                Tuple<IEnumerable<RecordModel>, int> result = _RecordDal.GetByExerciseAndUser(request.ExerciseReference, request.UserReference, offset, request.PageLength);
 
                 ExerciseRecordsResponse response = new ExerciseRecordsResponse();
 
@@ -106,7 +106,8 @@ namespace StrengthIgniter.Core.Services
                     //get the best lift for each day
                     return records
                         .GroupBy(x => GetWeekOfYear(x.Date))
-                        .Select(grp => grp.OrderByDescending(rec => rec.e1RM).FirstOrDefault());
+                        .Select(grp => grp.OrderByDescending(rec => rec.e1RM).FirstOrDefault())
+                        .OrderBy(x => x.Date);
                 }
                 return records;//empty
             }

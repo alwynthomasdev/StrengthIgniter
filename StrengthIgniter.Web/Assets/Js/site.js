@@ -1,8 +1,4 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Write your JavaScript code.
-'use strict';
+﻿'use strict';
 
 var createDelayedEventHandler = function (callback, ms) {
     var timer = 0;
@@ -38,14 +34,19 @@ function clearCanvas(canvasElementId) {
     context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+//Takes care of populating a table with data (ajax request) and pagination controlls
 function Paginator(options) {
-    this.$table = options.table;
-    this.url = options.url;
-    this.pageLength = options.pageLength;
-    this.filters = options.filters;
-    this.pageNumber = 1;
-    this.itemCount = 0;
+    this.$table = options.table;            //The table element to populate
+    this.url = options.url;                 //url to fetch data from
+    this.pageLength = options.pageLength;   //the max length of a page of data
+    this.filters = options.filters;         //any filters that should be sent with url, can be re-added using send request 
 
+    this.pageNumber = 1;//start on page 1
+    this.itemCount = 0;//total items accross all pages (determines number of pages)
+
+    //Send a request to the server to populate table
+    // - filters: any filters that should be sent with url
+    // - reset: should the page number be reset (default false)
     this.sendRequest = function (filters, reset = false) {
         if (filters) {
             $this.filters = filters;
@@ -234,6 +235,7 @@ function Paginator(options) {
     init();
 }
 
+//Creates a e1RM / RPE max chart 
 function RenderMaxChart(reference, canvasElementId) {
 
     $.get('/chart/max/' + reference, function (data) {
@@ -374,7 +376,6 @@ var configureRecordEditor = function ($recordFormContainer, fnSavedCallback, exe
                     .fail(function (err) {
                         console.log(err);
                         alertify.error('Sorry, failed to save record.');
-                        //TODO: something in the ui
                     });
             }
         });

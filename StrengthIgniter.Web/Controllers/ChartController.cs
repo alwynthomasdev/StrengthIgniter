@@ -11,6 +11,7 @@ namespace StrengthIgniter.Web.Controllers
 {
     public class ChartController : Controller
     {
+        #region CTOR
 
         private readonly IExerciseService _ExerciseService;
         public ChartController(
@@ -19,6 +20,10 @@ namespace StrengthIgniter.Web.Controllers
         {
             _ExerciseService = exerciseService;
         }
+
+        #endregion
+
+        //All actions for getting and returning data for chart generation here
 
         [Route("chart/max/{reference}")]
         public IActionResult Max(Guid reference)
