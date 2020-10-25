@@ -25,18 +25,18 @@ namespace StrengthIgniter.Web.Controllers
         #endregion
 
         [Route("record/editor/{exerciseReference:guid}")]
-        public IActionResult Editor(Guid exerciseReference)
+        public IActionResult ExerciseRecordEditor(Guid exerciseReference)
         {
             return View("_RecordEditor", new RecordViewModel { ExerciseReference = exerciseReference });
         }
 
-        [Route("record/editor/{id:int}")]
-        public IActionResult Editor(int id)
+        [Route("record/editor/{reference}/{exerciseReference}")]
+        public IActionResult Editor(Guid reference)
         {
-            RecordModel record = _RecordService.GetByIdAndUser(id, User.GetNameIdentifier());
+            RecordModel record = _RecordService.GetByIdAndUser(reference, User.GetNameIdentifier());
             return View("_RecordEditor", new RecordViewModel
             {
-                RecordId = record.RecordId,
+                Reference = record.Reference,
                 ExerciseReference = record.ExerciseReference.Value,
                 Date = record.Date,
                 Sets = record.Sets,
@@ -55,7 +55,7 @@ namespace StrengthIgniter.Web.Controllers
             {
                 _RecordService.SaveRecord(new RecordModel
                 {
-                    RecordId = vm.RecordId,
+                    Reference = vm.Reference,
                     ExerciseReference = vm.ExerciseReference,
                     UserReference = User.GetNameIdentifier(),
                     Date = vm.Date.Value,
@@ -73,10 +73,10 @@ namespace StrengthIgniter.Web.Controllers
         }
 
         [HttpDelete]
-        [Route("record/delete")]
-        public IActionResult Delete(int Id)
+        [Route("record/delete/{reference}")]
+        public IActionResult Delete(Guid reference)
         {
-            _RecordService.DeleteRecord(Id, User.GetNameIdentifier());
+            _RecordService.DeleteRecord(reference, User.GetNameIdentifier());
             return Json(true);
         }
 

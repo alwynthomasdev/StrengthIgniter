@@ -1,14 +1,17 @@
-﻿using StrengthIgniter.Core.Utils;
+﻿using StrengthIgniter.Core.Models.Infrastructure;
+using StrengthIgniter.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace StrengthIgniter.Core.Models
 {
-    public class RecordModel
+    public class RecordModel : ModelBase
     {
-        public int RecordId { get; set; }
-        public int UserId { get; internal set; }
+        internal int RecordId { get; set; }
+        public Guid Reference { get; set; }
+        internal int UserId { get; set; }
+        public Guid UserReference { get; set; }
         public int ExerciseId { get; set; }
         public DateTime Date { get; set; }
         public int? Sets { get; set; }
@@ -19,10 +22,8 @@ namespace StrengthIgniter.Core.Models
         public string Notes { get; set; }
         public DateTime CreatedDateTimeUtc { get; internal set; }
 
-        //
-        public Guid? UserReference { get; set; }
         public string ExerciseName { get; set; }
-        public Guid? ExerciseReference { get; set; }
+        public Guid ExerciseReference { get; set; }
 
         #region Calculated Properties
 

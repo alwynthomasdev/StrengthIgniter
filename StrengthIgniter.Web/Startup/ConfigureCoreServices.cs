@@ -150,6 +150,7 @@ namespace StrengthIgniter.Web
                 sp.GetRequiredService<IRecordImportSchemaDataAccess>(),
                 sp.GetRequiredService<IExerciseDataAccess>(),
                 sp.GetRequiredService<IRecordDataAccess>(),
+                sp.GetRequiredService<IPaginationUtility>(),
                 sp.GetRequiredService<IAuditEventDataAccess>(),
                 sp.GetRequiredService<ILoggerFactory>().CreateLogger<RecordImportService>(),
                 sp.GetRequiredService<DatabaseConnectionFactory>()

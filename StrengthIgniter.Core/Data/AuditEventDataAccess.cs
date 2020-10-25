@@ -12,8 +12,9 @@ namespace StrengthIgniter.Core.Data
 {
     public interface IAuditEventDataAccess
     {
-        int InsertAuditEvent(AuditEventModel auditEvent);
-        int InsertAuditEvent(IDbConnection connection, IDbTransaction transaction, AuditEventModel auditEvent);
+        int Insert(AuditEventModel auditEvent);
+
+        int Insert(IDbConnection connection, IDbTransaction transaction, AuditEventModel auditEvent);
     }
 
     public class AuditEventDataAccess : DataAccessBase, IAuditEventDataAccess
@@ -24,29 +25,29 @@ namespace StrengthIgniter.Core.Data
         }
         #endregion
 
-        public int InsertAuditEvent(AuditEventModel auditEvent)
+        public int Insert(AuditEventModel auditEvent)
         {
             using (IDbConnection con = GetConnection())
             {
                 con.Open();
                 using (IDbTransaction trn = con.BeginTransaction())
                 {
-                    return InsertAuditEvent(con, trn, auditEvent);
+                    return Insert(con, trn, auditEvent);
                 }
             }
         }
 
-        public int InsertAuditEvent(IDbConnection connection, IDbTransaction transaction, AuditEventModel auditEvent)
+        public int Insert(IDbConnection connection, IDbTransaction transaction, AuditEventModel auditEvent)
         {
             #region SQL
             string sql = @"
-INSERT INTO [AuditEvent]
-    ([AuditEventDateTimeUtc]
-    ,[EventType]
-    ,[Details]
-    ,[RelatedServiceName]
-    ,[RelatedUserId]
-    ,[RelatedAuditEventId])
+INSERT INTO AuditEvent
+    (AuditEventDateTimeUtc
+    ,EventType
+    ,Details
+    ,RelatedServiceName
+    ,RelatedUserId
+    ,RelatedAuditEventId)
 VALUES
     (@AuditEventDateTimeUtc
     ,@EventType
@@ -61,7 +62,6 @@ SELECT SCOPE_IDENTITY()
             if (auditEvent.RelatedUserReference.HasValue)
             {
                 sql = @"
---DECALRE @RelatedUserId INTEGER
 SELECT TOP 1 @RelatedUserId = [UserId] FROM [User] WHERE [Reference] = @RelatedUserReference
 
 " + sql;
@@ -95,8 +95,8 @@ SELECT TOP 1 @RelatedUserId = [UserId] FROM [User] WHERE [Reference] = @RelatedU
         {
             #region SQL
             string sql = @"
-INSERT INTO [AuditEventItem]
-    ([AuditEventId]
+INSERT INTO AuditEventItem
+    (AuditEventId
     ,[Key]
     ,[Value])
 VALUES

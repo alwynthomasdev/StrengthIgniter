@@ -38,7 +38,7 @@ namespace StrengthIgniter.Web.Controllers
         {
             return View("NewImport", new NewImportViewModel
             {
-                Schemas = _RecordImportSchemaService.GetAllSchemas()
+                Schemas = _RecordImportSchemaService.Get(User.GetNameIdentifier())
             });
         }
 
@@ -60,7 +60,7 @@ namespace StrengthIgniter.Web.Controllers
                 });
                 return RedirectToAction("Import", new { reference = importReference });
             }
-            vm.Schemas = _RecordImportSchemaService.GetAllSchemas();//re-get this
+            vm.Schemas = _RecordImportSchemaService.Get(User.GetNameIdentifier());//re-get this
             return View("NewImport", vm);
         }
 

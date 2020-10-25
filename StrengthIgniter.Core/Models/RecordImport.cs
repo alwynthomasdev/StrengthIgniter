@@ -1,10 +1,11 @@
-﻿using System;
+﻿using StrengthIgniter.Core.Models.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace StrengthIgniter.Core.Models
 {
-    public class RecordImportModel
+    public class RecordImportModel : ModelBase
     {
         public int RecordImportId { get; internal set; }
         public Guid Reference { get; internal set; }
@@ -20,9 +21,10 @@ namespace StrengthIgniter.Core.Models
         public Guid UserReference { get; set; } 
     }
 
-    public class RecordImportRowModel
+    public class RecordImportRowModel : ModelBase
     {
         public int RecordImportRowId { get; internal set; }
+        public Guid Reference { get; internal set; }
         public int RecordImportId { get; set; }
 
         public ImportRowStatusCode StatusCode { get; set; }

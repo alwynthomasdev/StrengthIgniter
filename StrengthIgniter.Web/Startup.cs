@@ -12,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using StrengthIgniter.Core.Services;
 
 namespace StrengthIgniter.Web
 {
@@ -40,7 +39,7 @@ namespace StrengthIgniter.Web
             services.AddUtilities();
             services.AddCoreServices();
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            services.AddAuthentication()
                 .AddCookie();
 
             services.AddControllersWithViews(o => o.Filters.Add(new AuthorizeFilter()));
@@ -65,6 +64,7 @@ namespace StrengthIgniter.Web
 
             app.UseRouting();
 
+            //Use Authentication
             app.UseAuthentication();
 
             app.UseAuthorization();

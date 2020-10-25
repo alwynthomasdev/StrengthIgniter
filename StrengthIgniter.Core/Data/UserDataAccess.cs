@@ -10,16 +10,16 @@ namespace StrengthIgniter.Core.Data
 {
     public interface IUserDataAccess
     {
-        UserModel GetByReference(Guid reference);
-        UserModel GetByEmailAddress(string emailAddress);
-        UserModel GetByToken(Guid tokenReference);
-        IEnumerable<UserSecurityQuestionAnswerModel> GetFailedQuestionsForUser(Guid userReference);
+        UserModel Select(Guid reference);
+        UserModel SelectByEmailAddress(string emailAddress);
+        UserModel SelectByToken(Guid tokenReference);
+        IEnumerable<UserSecurityQuestionAnswerModel> SelectFailedQuestions(Guid userReference);
 
-        int CreateNewUser(IDbConnection con, IDbTransaction transaction, UserModel user);
-        void CreateUserToken(IDbConnection con, IDbTransaction transaction, Guid userReference, UserTokenModel token);
-        void CreateSecurityQuestion(IDbConnection con, IDbTransaction transaction, Guid userReference, UserSecurityQuestionAnswerModel question);
+        int Insert(IDbConnection con, IDbTransaction transaction, UserModel user);
+        void InsertToken(IDbConnection con, IDbTransaction transaction, Guid userReference, UserTokenModel token);
+        void InsertSecurityQuestion(IDbConnection con, IDbTransaction transaction, Guid userReference, UserSecurityQuestionAnswerModel question);
 
-        void UpdateUserLoginAttempt(IDbConnection con, IDbTransaction transaction, UserModel user);
+        void UpdateLoginAttempt(IDbConnection con, IDbTransaction transaction, UserModel user);
         void UpdateRegistrationValidated(IDbConnection con, IDbTransaction transaction, int userId);
         void UpdateSecurityQuestionAttempts(IDbConnection con, IDbTransaction transaction, int userId, int? failedAttempts);
         void UpdatePassword(IDbConnection con, IDbTransaction transaction, int userId, string passwordHash);
@@ -34,7 +34,7 @@ namespace StrengthIgniter.Core.Data
         }
         #endregion
 
-        public UserModel GetByReference(Guid reference)
+        public UserModel Select(Guid reference)
         {
             #region sql
             string sql = @"
@@ -81,7 +81,7 @@ WHERE
         }
 
 
-        public UserModel GetByEmailAddress(string emailAddress)
+        public UserModel SelectByEmailAddress(string emailAddress)
         {
             #region sql
             string sql = @"
@@ -127,7 +127,7 @@ WHERE
             }
         }
 
-        public UserModel GetByToken(Guid tokenReference)
+        public UserModel SelectByToken(Guid tokenReference)
         {
             #region sql
             string sql = @"
@@ -190,7 +190,7 @@ WHERE
             }
         }
 
-        public IEnumerable<UserSecurityQuestionAnswerModel> GetFailedQuestionsForUser(Guid userReference)
+        public IEnumerable<UserSecurityQuestionAnswerModel> SelectFailedQuestions(Guid userReference)
         {
             #region SQL
             string sql = @"
@@ -224,7 +224,7 @@ WHERE
             }
         }
 
-        public int CreateNewUser(IDbConnection con, IDbTransaction transaction, UserModel user)
+        public int Insert(IDbConnection con, IDbTransaction transaction, UserModel user)
         {
             #region SQL
             string sql = @"
@@ -253,11 +253,11 @@ SELECT SCOPE_IDENTITY()".Trim();
                 {
                     foreach(UserTokenModel token in user.Tokens)
                     {
-                        CreateUserToken(con, transaction, user.Reference, token);
+                        InsertToken(con, transaction, user.Reference, token);
                     }
                     foreach(UserSecurityQuestionAnswerModel question in user.SecurityQuestions)
                     {
-                        CreateSecurityQuestion(con, transaction, user.Reference, question);
+                        InsertSecurityQuestion(con, transaction, user.Reference, question);
                     }
                     return userId.Value;
                 }
@@ -276,7 +276,7 @@ SELECT SCOPE_IDENTITY()".Trim();
             }
         }
 
-        public void CreateSecurityQuestion(IDbConnection con, IDbTransaction transaction, Guid userReference, UserSecurityQuestionAnswerModel question)
+        public void InsertSecurityQuestion(IDbConnection con, IDbTransaction transaction, Guid userReference, UserSecurityQuestionAnswerModel question)
         {
             #region SQL
             string sql = @"
@@ -322,7 +322,7 @@ VALUES
             }
         }
 
-        public void CreateUserToken(IDbConnection con, IDbTransaction transaction, Guid userReference, UserTokenModel token)
+        public void InsertToken(IDbConnection con, IDbTransaction transaction, Guid userReference, UserTokenModel token)
         {
             #region SQL
             string sql = @"
@@ -365,7 +365,7 @@ VALUES
             }
         }
 
-        public void UpdateUserLoginAttempt(IDbConnection con, IDbTransaction transaction, UserModel user)
+        public void UpdateLoginAttempt(IDbConnection con, IDbTransaction transaction, UserModel user)
         {
             #region SQL
             string sql = @"

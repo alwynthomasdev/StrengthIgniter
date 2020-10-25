@@ -2,10 +2,11 @@
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Text;
+using StrengthIgniter.Core.Models.Infrastructure;
 
 namespace StrengthIgniter.Core.Models
 {
-    public class UserModel
+    public class UserModel : ModelBase
     {
         public int UserId { get; internal set; }
         public Guid Reference { get; internal set; }
@@ -23,7 +24,7 @@ namespace StrengthIgniter.Core.Models
         internal IEnumerable<UserTokenModel> Tokens { get; set; }
     }
 
-    public class UserSecurityQuestionAnswerModel
+    public class UserSecurityQuestionAnswerModel : ModelBase
     {
         public Guid Reference { get; internal set; }
         public string QuestionText { get; set; }
@@ -31,7 +32,7 @@ namespace StrengthIgniter.Core.Models
         public int? FailedAnswerAttemptCount { get; internal set; }
     }
 
-    public class UserTokenModel
+    public class UserTokenModel : ModelBase
     {
         public Guid TokenReference { get; internal set; }
         public string PurposeCode { get; internal set; }

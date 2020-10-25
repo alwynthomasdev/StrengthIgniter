@@ -12,17 +12,17 @@ namespace StrengthIgniter.Core.Data
 
     public interface IExerciseDataAccess
     {
-        ExerciseModel GetById(int id);
-        ExerciseModel GetByReference(Guid reference);
+        ExerciseModel Select(int id);
 
-        /// <summary>
-        /// Pageable search for exercises
-        /// </summary>
-        /// <param name="exerciseName">Search string</param>
-        /// <param name="offset">offset the search (based on page)</param>
-        /// <param name="fetch">number or exercises to return (how many per page)</param>
-        /// <returns>A tuple containing the exercies and total number of results found (used to determine number of pages)</returns>
-        Tuple<IEnumerable<ExerciseModel>, int> Search(string exerciseName, int? offset, int? fetch);
+        ExerciseModel Select(Guid reference, Guid userReference);
+
+        Tuple<IEnumerable<ExerciseModel>, int> Filter(string exerciseName, Guid userReference, int? offset, int? fetch);
+
+        ExerciseModel Insert(IDbConnection dbConnection, IDbTransaction dbTransaction, ExerciseModel exercise);
+
+        void Update(IDbConnection dbConnection, IDbTransaction dbTransaction, ExerciseModel exercise);
+
+        void Delete(IDbConnection dbConnection, IDbTransaction dbTransaction, Guid reference, Guid userReference);
     }
 
     public class ExerciseDataAccess : DataAccessBase, IExerciseDataAccess
@@ -33,19 +33,22 @@ namespace StrengthIgniter.Core.Data
         }
         #endregion
 
-        public ExerciseModel GetById(int id)
+        public ExerciseModel Select(int id)
         {
             #region SQL
             string sql = @"
 SELECT TOP 1
-    [ExerciseId],
-    [Reference],
-    [Name]
+    e.ExerciseId,
+    e.Reference,
+    u.Reference AS UserReference,
+    e.[Name]
 FROM
-    [Exercise]
+    Exercise e
+    INNER JOIN [User] u
+        ON e.UserId = u.UserId
 WHERE
-    [ExerciseId] = @ExerciseId AND
-    [IsDeleted] = 0
+    e.ExerciseId = @ExerciseId AND
+    e.IsDeleted = 0
 ".Trim();
             #endregion
 
@@ -64,23 +67,27 @@ WHERE
             }
         }
 
-        public ExerciseModel GetByReference(Guid reference)
+        public ExerciseModel Select(Guid reference, Guid userReference)
         {
             #region SQL
-            string sql = @"
+            string sql = $@"
 SELECT TOP 1
-    [ExerciseId],
-    [Reference],
-    [Name]
+    e.ExerciseId,
+    e.Reference,
+    u.Reference AS UserReference,
+    e.[Name]
 FROM
-    [Exercise]
+    Exercise e
+    INNER JOIN [User] u 
+        ON e.UserId = u.UserId
 WHERE
-    [Reference] = @Reference AND
-    [IsDeleted] = 0
+    e.Reference = @Reference AND
+    (u.Reference = @UserReference OR u.Reference = '{SYSTEM_USER_REFERENCE}') AND
+    e.IsDeleted = 0
 ".Trim();
             #endregion
 
-            object parameters = new { Reference = reference };
+            object parameters = new { Reference = reference, UserReference = userReference };
 
             try
             {
@@ -95,9 +102,9 @@ WHERE
             }
         }
 
-        public Tuple<IEnumerable<ExerciseModel>, int> Search(string exerciseName, int? offset, int? fetch)
+        public Tuple<IEnumerable<ExerciseModel>, int> Filter(string exerciseName, Guid userReference, int? offset, int? fetch)
         {
-            string sql = GenerateSearchSql(exerciseName, offset, fetch);
+            string sql = GenerateFilterSql(exerciseName, offset, fetch);
             object parameters = new { SearchString = exerciseName, Offset = offset, Fetch = fetch };
             ExerciseModel[] exercises = null;
             int total = 0;
@@ -128,59 +135,162 @@ WHERE
             }
         }
 
-        #region Private Helpers
-
-        private string GenerateSearchSql(string exerciseName, int? offset, int? fetch)
+        public ExerciseModel Insert(IDbConnection dbConnection, IDbTransaction dbTransaction, ExerciseModel exercise)
         {
+            #region SQL
             string sql = @"
-SELECT 
-    [ex].[ExerciseId],
-    [ex].[Reference],
-    [ex].[Name]
-FROM
-    [Exercise] [ex]
-WHERE
-    [ex].[IsDeleted] = 0
-    {1}
-ORDER BY [ex].[Name]
-{2};
+DECLARE @UserId INTEGER
+SELECT @UserId = UserId FROM [User] WHERE Reference = @UserReference
 
-SELECT 
-	Count(*) [Count]
-FROM
-	[Exercise] [ex]
-WHERE
-    [ex].[IsDeleted] = 0
-    {1}";
+INSERT INTO [dbo].[Exercise]
+	(Reference
+	,[Name]
+	,UserId
+	,CreatedDateTimeUtc)
+VALUES
+	(@Reference
+	,@Name
+	,@UserId
+	,GETUTCDATE())
 
-            string whereClause = "";
-            if (!string.IsNullOrWhiteSpace(exerciseName))
+SELECT SCOPE_IDENTITY()
+".Trim();
+            #endregion
+
+            try
             {
-                whereClause = "AND [ex].[Name] LIKE '%'+@SearchString+'%'";
+                int? id = dbConnection.QuerySingleOrDefault<int?>(sql, dbTransaction);
+                if (id.HasValue)
+                {
+                    exercise.ExerciseId = id.Value;
+                    return exercise;
+                }
+                else throw new Exception("failed to insert exercise.");
+            }
+            catch(Exception ex)
+            {
+                throw new DataAccessException(ex, sql, exercise);
+            }
+        }
+
+        public void Update(IDbConnection dbConnection, IDbTransaction dbTransaction, ExerciseModel exercise)
+        {
+            #region SQL
+            string sql = @"
+UPDATE 
+	Exercise
+SET 
+	Exercise.[Name] = @Name
+FROM 
+	Exercise e
+	INNER JOIN [User] u
+		ON e.UserId = u.UserId
+WHERE
+	e.Reference = @Reference
+	AND u.Reference = @UserReference
+".Trim();
+            #endregion
+
+            try
+            {
+                dbConnection.Execute(sql, exercise, dbTransaction);
+            }
+            catch(Exception ex)
+            {
+                throw new DataAccessException(ex, sql, exercise);
             }
 
-            //add offset/fetch if parameters set...
+        }
+
+        public void Delete(IDbConnection dbConnection, IDbTransaction dbTransaction, Guid reference, Guid userReference)
+        {
+            #region SQL
+            string sql = @"
+UPDATE 
+	Exercise
+SET 
+	Exercise.IsDeleted = 1
+    Exercise.DeletedDateTimeUtc = GETUTCDATE()
+FROM 
+	Exercise e
+	INNER JOIN [User] u
+		ON e.UserId = u.UserId
+WHERE
+	e.Reference = @Reference
+	AND u.Reference = @UserReference
+".Trim();
+            #endregion
+
+            object parameters = new { Reference = reference, UserReference = userReference };
+
+            try
+            {
+                dbConnection.Execute(sql, parameters, dbTransaction);
+            }
+            catch(Exception ex)
+            {
+                throw new DataAccessException(ex, sql, parameters);
+            }
+
+        }
+
+        #region Private Helpers
+
+        // Generates sql based on filter parameters
+        private string GenerateFilterSql(string exerciseName, int? offset, int? fetch)
+        {
+            // define variables
+            string top = "";
+            string offsetFetchRows = "";
+
+            // set the where clause if there is an exercise search string
+            string where = !string.IsNullOrWhiteSpace(exerciseName) ? "AND ex.[Name] LIKE '%'+@SearchString+'%'" : "";
+
+            // set the top or offset depending on configuration of offset and fetch parameters
             if (offset.HasValue && fetch.HasValue)
             {
-                sql = string.Format(sql, "", whereClause, "OFFSET @Offset ROWS FETCH NEXT @Fetch ROWS ONLY");
+                offsetFetchRows = "OFFSET @Offset ROWS FETCH NEXT @Fetch ROWS ONLY";
             }
             else if (fetch.HasValue)
             {
-                sql = string.Format(sql, "TOP @Fetch", whereClause, "");
+                top = "TOP @Fetch";
             }
             else
             {
-                sql = string.Format(sql, "", whereClause, "");
+                // do nothing
             }
 
-            return sql.Trim();
+            // generate and return sql string
+            return $@"
+SELECT {top}
+    ex.ExerciseId,
+    ex.Reference,
+    u.Reference AS UserReference,
+    ex.[Name]
+FROM
+    Exercise ex
+    INNER JOIN [User] u
+        ON ex.UserId = u.UserId
+WHERE
+    (u.Reference = @UserReference OR u.Reference = '{SYSTEM_USER_REFERENCE}')
+    AND ex.IsDeleted = 0
+    {where}
+ORDER BY ex.[Name]
+{offsetFetchRows};
+
+SELECT 
+	COUNT(*) [Count]
+FROM
+	Exercise ex
+    INNER JOIN [User] u
+        ON ex.UserId = u.UserId
+WHERE
+    ex.IsDeleted = 0
+    {where}
+".Trim();
         }
 
         #endregion
-
-
-
-
     }
 
 }

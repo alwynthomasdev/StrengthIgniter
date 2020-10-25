@@ -7,7 +7,7 @@ namespace StrengthIgniter.Web.Models
 {
     public class RecordViewModel
     {
-        public int RecordId { get; set; }
+        public Guid Reference { get; set; }
 
         [Required]
         public Guid ExerciseReference { get; set; }

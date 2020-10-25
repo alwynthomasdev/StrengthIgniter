@@ -9,7 +9,7 @@ namespace StrengthIgniter.Core.Data
 {
     public interface ISecurityQuestionDataAccess
     {
-        IEnumerable<SecurityQuestionModel> GetQuestions();
+        IEnumerable<SecurityQuestionModel> Select();
     }
 
     public class SecurityQuestionDataAccess : DataAccessBase, ISecurityQuestionDataAccess
@@ -20,7 +20,7 @@ namespace StrengthIgniter.Core.Data
         }
         #endregion
 
-        public IEnumerable<SecurityQuestionModel> GetQuestions()
+        public IEnumerable<SecurityQuestionModel> Select()
         {
             #region SQL
             string sql = @"

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using StrengthIgniter.Core.Models.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace StrengthIgniter.Core.Models
 {
-    public class AuditEventModel
+    public class AuditEventModel : ModelBase
     {
         public int AuditEventId { get; internal set; }
         public DateTime AuditEventDateTimeUtc { get; internal set; }
@@ -19,7 +20,7 @@ namespace StrengthIgniter.Core.Models
         public IEnumerable<AuditEventItemModel> Items { get; set; }
     }
 
-    public class AuditEventItemModel
+    public class AuditEventItemModel : ModelBase
     {
         public int AuditEventItemId { get; internal set; }
         public int AuditEventId { get; set; }
@@ -43,6 +44,10 @@ namespace StrengthIgniter.Core.Models
 
         public const string SecurityQuestionsUpdated = "SecurityQuestionsUpdated";
 
+        public const string ExerciseInsert = "ExerciseInsert";
+        public const string ExerciseUpdate = "ExerciseUpdate";
+        public const string ExerciseDelete = "ExerciseDelete";
+
         public const string RecordUpdate = "RecordUpdate";
         public const string RecordInsert = "RecordInsert";
         public const string RecordDelete = "RecordDelete";
@@ -50,7 +55,9 @@ namespace StrengthIgniter.Core.Models
         public const string ImportNew = "ImportNew";
         public const string ImportProcessed = "ImportProcessed";
         public const string ImportRowProcessed = "ImportRowProcessed";
+        public const string ImportRowUpdated = "ImportRowUpdated";
         public const string ImportDeleted = "ImportDeleted";
+        public const string ImportRowDeleted = "ImportRowDeleted";
     }
 
 }

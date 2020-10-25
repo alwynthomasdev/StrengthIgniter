@@ -13,9 +13,9 @@ namespace StrengthIgniter.Core.Services
 {
     public interface IRecordService
     {
-        RecordModel GetByIdAndUser(int recordId, Guid userReference);
+        RecordModel GetByIdAndUser(Guid reference, Guid userReference);
         void SaveRecord(RecordModel record);
-        void DeleteRecord(int recordId, Guid userReference);
+        void DeleteRecord(Guid reference, Guid userReference);
     }
 
     public class RecordService : ServiceBase, IRecordService
@@ -51,18 +51,19 @@ namespace StrengthIgniter.Core.Services
                         if (record.RecordId > 0)
                         {
                             _RecordDal.Update(dbConnection, dbTransaction, record);
-                            CreateAuditEvent(dbConnection, dbTransaction, AuditEventType.RecordUpdate, record.UserReference.Value, "Record Updated", new AuditEventItemModel[] {
+                            CreateAuditEvent(dbConnection, dbTransaction, AuditEventType.RecordUpdate, record.UserReference, "Record Updated", new AuditEventItemModel[] {
                                 new AuditEventItemModel{ Key ="RecordId", Value=record.RecordId.ToString() }
                             });
                         }
                         else
                         {
+                            record.Reference = Guid.NewGuid();
                             record.CreatedDateTimeUtc = DateTime.UtcNow;
-                            ExerciseModel exercise = _ExerciseDal.GetByReference(record.ExerciseReference.Value);
+                            ExerciseModel exercise = _ExerciseDal.Select(record.ExerciseReference, record.UserReference);
                             record.ExerciseId = exercise.ExerciseId;
 
                             int id = _RecordDal.Insert(dbConnection, dbTransaction, record);
-                            CreateAuditEvent(dbConnection, dbTransaction, AuditEventType.RecordInsert, record.UserReference.Value, "Record Inserted", new AuditEventItemModel[] {
+                            CreateAuditEvent(dbConnection, dbTransaction, AuditEventType.RecordInsert, record.UserReference, "Record Inserted", new AuditEventItemModel[] {
                                 new AuditEventItemModel{ Key ="RecordId", Value=id.ToString() }
                             });
                         }
@@ -78,7 +79,7 @@ namespace StrengthIgniter.Core.Services
             }
         }
 
-        public void DeleteRecord(int recordId, Guid userReference)
+        public void DeleteRecord(Guid reference, Guid userReference)
         {
             try
             {
@@ -87,9 +88,9 @@ namespace StrengthIgniter.Core.Services
                     dbConnection.Open();
                     using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                     {
-                        _RecordDal.Delete(dbConnection, dbTransaction, recordId, userReference);
+                        _RecordDal.Delete(dbConnection, dbTransaction, reference, userReference);
                         CreateAuditEvent(dbConnection, dbTransaction, AuditEventType.RecordDelete, userReference, "Record deleted", new AuditEventItemModel[] {
-                            new AuditEventItemModel{ Key="RecordId", Value = recordId.ToString() }
+                            new AuditEventItemModel{ Key="Reference", Value = reference.ToString() }
                         });
                         dbTransaction.Commit();
                     }
@@ -97,20 +98,20 @@ namespace StrengthIgniter.Core.Services
             }
             catch(Exception ex)
             {
-                ServiceException serviceException = CreateServiceException(ex, MethodInfo.GetCurrentMethod().Name, new { recordId, userReference });
+                ServiceException serviceException = CreateServiceException(ex, MethodInfo.GetCurrentMethod().Name, new { reference, userReference });
                 throw serviceException;
             }
         }
 
-        public RecordModel GetByIdAndUser(int recordId, Guid userReference)
+        public RecordModel GetByIdAndUser(Guid reference, Guid userReference)
         {
             try
             {
-                return _RecordDal.GetByIdAndUser(recordId, userReference);
+                return _RecordDal.Select(reference, userReference);
             }
             catch(Exception ex)
             {
-                ServiceException serviceException = CreateServiceException(ex, MethodInfo.GetCurrentMethod().Name, new { recordId, userReference });
+                ServiceException serviceException = CreateServiceException(ex, MethodInfo.GetCurrentMethod().Name, new { reference, userReference });
                 throw serviceException;
             }
         }

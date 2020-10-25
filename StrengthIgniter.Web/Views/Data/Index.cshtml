@@ -1,40 +1,66 @@
 ﻿@model IEnumerable<RecordImportModel>
 @{
     ViewData["Title"] = "Imports";
+    Guid sectionId = Guid.NewGuid();
 }
 
-<div class="row">
-    <div class="col-12 col-md-6">
-        <h2>Imports</h2>
+<section id="@sectionId">
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <h2>Imports</h2>
+        </div>
+        <div class="col-12 col-md-6 text-xs-left text-md-right">
+            <a asp-action="Import" class="btn btn-primary btn-lg">New Import</a>
+        </div>
     </div>
-    <div class="col-12 col-md-6 text-xs-left text-md-right">
-        <a asp-action="Import" class="btn btn-primary btn-lg">New</a>
-    </div>
-</div>
-<hr />
+    <hr />
 
-<table class="table">
-    <thead class="thead-dark">
-        <tr>
-            <th>Import</th>
-            <th>Date/Time (UTC)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.HasItems())
-        {
-            foreach (RecordImportModel import in Model)
+    <table class="table" id="tbl-imports">
+        <thead class="thead-dark">
+            <tr>
+                <th>Import</th>
+                <th>Date/Time (UTC)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.HasItems())
             {
-                <tr>
-                    <td>@import.Name</td>
-                    <td>@import.ImportDateTimeUtc.ToShortDateString() @import.ImportDateTimeUtc.ToShortTimeString()</td>
-                    <td>
-                        <a asp-action="Import" asp-route-reference="@import.Reference" class="btn btn-info btn-sm">View</a>
-                        @*<a asp-action="Delete" asp-route-reference="@import.Reference" class="btn btn-danger btn-sm">Delete</a>*@
-                    </td>
-                </tr>
+                foreach (RecordImportModel import in Model)
+                {
+                    <tr data-ref="@import.Reference">
+                        <td>@import.Name</td>
+                        <td>@import.ImportDateTimeUtc.ToShortDateString() @import.ImportDateTimeUtc.ToShortTimeString()</td>
+                        <td class="text-right">
+                            <a asp-action="Import" asp-route-reference="@import.Reference" class="btn btn-info btn-sm">View</a>
+                            <a href="#" class="btn btn-danger btn-sm btn-delete">Delete</a>
+                        </td>
+                    </tr>
+                }
             }
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</section>
+
+@section Scripts{ 
+<script>
+    (function ($) {
+        'use strict';
+
+        var $section = $('#@sectionId');
+        var $importsTable = $section.find('#tbl-imports');
+
+        $importsTable.on('click', '.btn-delete', function (e) {
+            e.preventDefault();
+            var $this = $(this);
+            var $tr = $this.parent('tr');
+            var ref = $tr.data('ref');
+
+            console.log(ref);
+            //TODO: ajax delete
+            //$tr.remove();
+        });
+
+    })(jQuery);
+</script>
+}

@@ -1,3 +1,9 @@
+DECLARE @SysUserId INTEGER
+
+SELECT @SysUserId = UserId 
+FROM [User]
+WHERE Reference = '00000000-0000-0000-0000-000000000000'
+
 DECLARE @exercises TABLE (
 	[Reference] UNIQUEIDENTIFIER,
 	[Name] VARCHAR(500)
@@ -27,10 +33,18 @@ VALUES
 	('57462967-5BF0-4F7F-BE99-94D25BB3F173',	'Pendlay Row'),
 	('A4293CA8-E6BA-47A0-B427-0185A53DF553',	'Sumo Deadlift'),
 	('1826A9EB-3EEF-4464-8058-F11025A2FD85',	'SSB Good Morning'),
-	('F749B120-83BA-45D0-BDCD-FAD2BE018840',	'Overhead Press')
+	('F749B120-83BA-45D0-BDCD-FAD2BE018840',	'Overhead Press'),
+	('10F42A05-4203-48D6-A8C0-79E33BB99F37',	'Trap Bar Deadlift'),
+	('C60652CA-3538-4C22-BD22-F72866352F63',	'Barbell Row'),
+	('189CAF3E-91C8-4391-AEF8-93438AAE79D4',	'Swiss Bar Bench Press'),
+	('758925B3-E5BF-44FA-8AA6-56E4B71149D9',	'Swiss Bar Floor Press'),
+	('02703513-B4C0-4133-937F-43EBCAE2208F',	'Dumbbell Press'),
+	('43C0D6A5-1BB6-4ABB-B153-2B782EEE0893',	'JM Press'),
+	('AAA9BACE-5CB6-4655-B550-F03BE0E53C23',	'Olympic Stance SSB Squat'),
+	('2E3E56FD-2671-44F2-B30E-716EC31428E0',	'TnG Bench Press')
 
-INSERT INTO [Exercise] ([Reference],[Name])
-SELECT [Reference], [Name] FROM @exercises
+INSERT INTO [Exercise] ([Reference], [Name], [UserId], [CreatedDateTimeUtc])
+SELECT [Reference], [Name], @SysUserId, GETUTCDATE() FROM @exercises
 WHERE [Reference] NOT IN (
 	SELECT [Reference] FROM [Exercise]
 )

@@ -6,7 +6,7 @@ BEGIN TRANSACTION trn
 
 DECLARE @recordImportSchemaId INTEGER = 0
 --
-DECLARE @userId INTEGER = 10
+DECLARE @userId INTEGER = 1
 DECLARE @schemaName VARCHAR(500) = 'My Schema'
 
 IF NOT EXISTS (SELECT TOP 1 [RecordImportSchemaId] FROM [RecordImportSchema] WHERE [UserId] = @userId AND [Name] = @schemaName)
@@ -42,31 +42,31 @@ IF NOT EXISTS (SELECT TOP 1 [RecordImportSchemaId] FROM [RecordImportSchema] WHE
 		,[ExerciseId]
 		,[Text])
 	VALUES
-		(@recordImportSchemaId, 73, 'Squat'),
-		(@recordImportSchemaId, 74, 'PauseSquat'),
-		(@recordImportSchemaId, 75, 'SSB'),
-		(@recordImportSchemaId, 76, 'HbSquat'),
-		(@recordImportSchemaId, 77, 'LegPress'),
-		(@recordImportSchemaId, 78, 'PauseSSB'),
-		(@recordImportSchemaId, 79, 'FrontSquat'),
-		(@recordImportSchemaId, 80, 'Bench'),
-		(@recordImportSchemaId, 80, 'SpeedBench'),
-		(@recordImportSchemaId, 81, 'DbBench'),
-		(@recordImportSchemaId, 82, 'CGBP'),
-		(@recordImportSchemaId, 83, 'IncDbBench'),
-		(@recordImportSchemaId, 84, '3ctPauseBench'),
-		(@recordImportSchemaId, 85, 'WGBP'),
-		(@recordImportSchemaId, 86, 'Spoto'),
-		(@recordImportSchemaId, 87, 'FeetUp'),
-		(@recordImportSchemaId, 88, 'InclineBench'),
-		(@recordImportSchemaId, 89, 'Deadlift'),
-		(@recordImportSchemaId, 90, 'SLDL'),
-		(@recordImportSchemaId, 91, 'RDL'),
-		(@recordImportSchemaId, 92, 'DefDeadlift'),
-		(@recordImportSchemaId, 93, 'PendlayRow'),
-		(@recordImportSchemaId, 94, 'Sumo'),
-		(@recordImportSchemaId, 95, 'SSBGM'),
-		(@recordImportSchemaId, 96, 'Press')
+		(@recordImportSchemaId, 1, 'Squat'),
+		(@recordImportSchemaId, 2, 'PauseSquat'),
+		(@recordImportSchemaId, 3, 'SSB'),
+		(@recordImportSchemaId, 4, 'HbSquat'),
+		(@recordImportSchemaId, 5, 'LegPress'),
+		(@recordImportSchemaId, 6, 'PauseSSB'),
+		(@recordImportSchemaId, 7, 'FrontSquat'),
+		(@recordImportSchemaId, 8, 'Bench'),
+		(@recordImportSchemaId, 8, 'SpeedBench'),
+		(@recordImportSchemaId, 9, 'DbBench'),
+		(@recordImportSchemaId, 10, 'CGBP'),
+		(@recordImportSchemaId, 11, 'IncDbBench'),
+		(@recordImportSchemaId, 12, '3ctPauseBench'),
+		(@recordImportSchemaId, 13, 'WGBP'),
+		(@recordImportSchemaId, 14, 'Spoto'),
+		(@recordImportSchemaId, 15, 'FeetUp'),
+		(@recordImportSchemaId, 16, 'InclineBench'),
+		(@recordImportSchemaId, 17, 'Deadlift'),
+		(@recordImportSchemaId, 18, 'SLDL'),
+		(@recordImportSchemaId, 19, 'RDL'),
+		(@recordImportSchemaId, 20, 'DefDeadlift'),
+		(@recordImportSchemaId, 21, 'PendlayRow'),
+		(@recordImportSchemaId, 22, 'Sumo'),
+		(@recordImportSchemaId, 23, 'SSBGM'),
+		(@recordImportSchemaId, 24, 'Press')
 	
  END
  COMMIT TRANSACTION trn

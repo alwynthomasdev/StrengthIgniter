@@ -68,7 +68,7 @@ namespace StrengthIgniter.Core.Services.Infrastructure
                 RelatedAuditEventId = relatedAuditId,
                 Items = items
             };
-            return _AuditEventDal.InsertAuditEvent(auditEvent);
+            return _AuditEventDal.Insert(auditEvent);
         }
         protected int CreateAuditEvent(string eventType, Guid userReference, string details, IEnumerable<AuditEventItemModel> items, int? relatedAuditId = null)
         {
@@ -82,7 +82,7 @@ namespace StrengthIgniter.Core.Services.Infrastructure
                 RelatedAuditEventId = relatedAuditId,
                 Items = items
             };
-            return _AuditEventDal.InsertAuditEvent(auditEvent);
+            return _AuditEventDal.Insert(auditEvent);
         }
 
         protected int CreateAuditEvent(IDbConnection dbConnection, IDbTransaction dbTransaction, 
@@ -98,7 +98,7 @@ namespace StrengthIgniter.Core.Services.Infrastructure
                 RelatedAuditEventId = relatedAuditId,
                 Items = items
             };
-            return _AuditEventDal.InsertAuditEvent(dbConnection, dbTransaction, auditEvent);
+            return _AuditEventDal.Insert(dbConnection, dbTransaction, auditEvent);
         }
         protected int CreateAuditEvent(IDbConnection dbConnection, IDbTransaction dbTransaction,
             string eventType, Guid userReference, string details, IEnumerable<AuditEventItemModel> items, int? relatedAuditId = null)
@@ -113,7 +113,7 @@ namespace StrengthIgniter.Core.Services.Infrastructure
                 RelatedAuditEventId = relatedAuditId,
                 Items = items
             };
-            return _AuditEventDal.InsertAuditEvent(dbConnection, dbTransaction, auditEvent);
+            return _AuditEventDal.Insert(dbConnection, dbTransaction, auditEvent);
         }
 
         protected int CreateEmailAuditEvent(EmailMessageModel emailModel, int? userId, int? relatedAuditEventId = null)

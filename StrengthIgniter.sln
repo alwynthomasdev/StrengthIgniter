@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StrengthIgniter.Core", "Str
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StrengthIgniter.Web", "StrengthIgniter.Web\StrengthIgniter.Web.csproj", "{D33CAB71-CD3D-4B47-8CEF-9A0D9CEA42A1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrengthIgniter.Api", "StrengthIgniter.Api\StrengthIgniter.Api.csproj", "{A595110A-1311-4BE6-A2C7-2DD0D81D52B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D33CAB71-CD3D-4B47-8CEF-9A0D9CEA42A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D33CAB71-CD3D-4B47-8CEF-9A0D9CEA42A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D33CAB71-CD3D-4B47-8CEF-9A0D9CEA42A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A595110A-1311-4BE6-A2C7-2DD0D81D52B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A595110A-1311-4BE6-A2C7-2DD0D81D52B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A595110A-1311-4BE6-A2C7-2DD0D81D52B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A595110A-1311-4BE6-A2C7-2DD0D81D52B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

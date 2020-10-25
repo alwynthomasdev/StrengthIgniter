@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using StrengthIgniter.Core.Models.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -6,14 +7,14 @@ using System.Text;
 
 namespace StrengthIgniter.Core.Models
 {
-    public class SecurityQuestionModel
+    public class SecurityQuestionModel : ModelBase
     {
         public int SecurityQuestionId { get; internal set; }
         public string QuestionText { get; internal set; }
     }
 
     //used for registration and user security question reset
-    public class SecurityQuestionAnswerModel
+    public class SecurityQuestionAnswerModel : ModelBase
     {
         public string QuestionText { get; set; }
         public string Answer { get; set; }

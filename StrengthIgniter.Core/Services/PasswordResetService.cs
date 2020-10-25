@@ -55,7 +55,7 @@ namespace StrengthIgniter.Core.Services
         {
             try
             {
-                UserModel user = _UserDal.GetByEmailAddress(emailAddress);
+                UserModel user = _UserDal.SelectByEmailAddress(emailAddress);
                 if (user != null)
                 {
                     UserTokenModel userToken = new UserTokenModel
@@ -75,7 +75,7 @@ namespace StrengthIgniter.Core.Services
 
                         using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                         {
-                            _UserDal.CreateUserToken(dbConnection, dbTransaction, user.Reference, userToken);
+                            _UserDal.InsertToken(dbConnection, dbTransaction, user.Reference, userToken);
                             auditId = CreateTokenAudit(dbConnection, dbTransaction, user.UserId, userToken);
 
                             dbTransaction.Commit();
@@ -101,7 +101,7 @@ namespace StrengthIgniter.Core.Services
             try
             {
                 PasswordResetResponse response = new PasswordResetResponse { PasswordResetToken = passwordResetToken, ResponseType = PasswordResetResponseType.PasswordResetTokenInvalid };
-                UserModel user = _UserDal.GetByToken(passwordResetToken);
+                UserModel user = _UserDal.SelectByToken(passwordResetToken);
                 if (user != null)
                 {
                     //this token should definitely exist other wise get by token would not work
@@ -152,7 +152,7 @@ namespace StrengthIgniter.Core.Services
         {
             try
             {
-                UserModel user = _UserDal.GetByToken(request.PasswordResetToken);
+                UserModel user = _UserDal.SelectByToken(request.PasswordResetToken);
                 if (user != null)
                 {
                     //token purpose re-check!

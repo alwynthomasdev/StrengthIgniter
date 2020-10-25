@@ -1,7 +1,7 @@
 ﻿@model RecordViewModel
 @{ 
     Layout = null;
-    bool isUpdate = Model.RecordId > 0;
+    bool isUpdate = Model.Reference == Guid.Empty;
     //string actionLabel = Model.RecordId > 0 ? "Edit" : "Add";
 }
 <div class="row">
@@ -12,7 +12,7 @@
 <div class="row">
     <div class="col">
         <form action="record/save" method="post">
-            <input asp-for="RecordId" type="hidden" />
+            <input asp-for="Reference" type="hidden" />
             <input asp-for="ExerciseReference" type="hidden" />
 
             <div class="row">

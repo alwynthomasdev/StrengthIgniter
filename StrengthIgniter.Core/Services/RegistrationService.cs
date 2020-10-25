@@ -52,7 +52,7 @@ namespace StrengthIgniter.Core.Services
             _EmailUtility = emailUtility;
             _TemplateUtility = templateUtility;
 
-            _SecurityQuestions = securityQuestionDal.GetQuestions();
+            _SecurityQuestions = securityQuestionDal.Select();
         }
         #endregion
 
@@ -61,7 +61,7 @@ namespace StrengthIgniter.Core.Services
             try
             {
                 ValidateRegistrationModel(registrationModel);
-                UserModel user = _UserDal.GetByEmailAddress(registrationModel.EmailAddress);
+                UserModel user = _UserDal.SelectByEmailAddress(registrationModel.EmailAddress);
                 if (user == null)
                 {
                     user = ConvertRegistrationToUser(registrationModel);
@@ -75,7 +75,7 @@ namespace StrengthIgniter.Core.Services
                         dbConnection.Open();
                         using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                         {
-                            int newUserId = _UserDal.CreateNewUser(dbConnection, dbTransaction, user);
+                            int newUserId = _UserDal.Insert(dbConnection, dbTransaction, user);
                             auditId = CreateAuditEvent(dbConnection, dbTransaction, AuditEventType.NewUserRegistration, newUserId, "", null);
 
                             dbTransaction.Commit();
@@ -104,7 +104,7 @@ namespace StrengthIgniter.Core.Services
         {
             try
             {
-                UserModel user = _UserDal.GetByToken(registrationTokenReference);
+                UserModel user = _UserDal.SelectByToken(registrationTokenReference);
                 if (user != null)
                 {
                     //this token should definitely exist other wise gt by token would nt work
@@ -160,7 +160,7 @@ namespace StrengthIgniter.Core.Services
         {
             try
             {
-                UserModel user = _UserDal.GetByEmailAddress(emailAddress);
+                UserModel user = _UserDal.SelectByEmailAddress(emailAddress);
                 if (user != null)
                 {
                     if (!user.IsRegistrationValidated)
@@ -174,7 +174,7 @@ namespace StrengthIgniter.Core.Services
                             dbConnection.Open();
                             using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                             {
-                                _UserDal.CreateUserToken(dbConnection, dbTransaction, user.Reference, token);
+                                _UserDal.InsertToken(dbConnection, dbTransaction, user.Reference, token);
                                 auditId = CreateAuditEvent(AuditEventType.NewUserRegistration, user.UserId, "", null);
                             }
                         }

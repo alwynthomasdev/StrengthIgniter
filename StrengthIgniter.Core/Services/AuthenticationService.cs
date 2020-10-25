@@ -12,29 +12,29 @@ using System.Text;
 
 namespace StrengthIgniter.Core.Services
 {
-    public interface ILoginService
+    public interface IAuthenticationService
     {
-        LoginResponse Login(LoginRequest request);
+        AuthenticationResponse Authenticate(AuthenticationRequest request);
     }
 
-    public class LoginService : ServiceBase, ILoginService
+    public class AuthenticationService : ServiceBase
     {
         #region CTOR
-        private readonly LoginServiceConfig _Config;
+        private readonly AuthenticationServiceConfig _Config;
         private readonly IUserDataAccess _UserDal;
         private readonly IHashUtility _HashUtility;
         private readonly IEmailUtility _EmailUtility;
         private readonly ITemplateUtility _TemplateUtility;
 
-        public LoginService(
-            LoginServiceConfig config,
+        public AuthenticationService(
+            AuthenticationServiceConfig config,
             IUserDataAccess userDal,
             IHashUtility hashUtility,
             IEmailUtility emailUtility,
             ITemplateUtility templateUtility,
             //
             IAuditEventDataAccess auditEventDal,
-            ILogger<LoginService> logger,
+            ILogger<AuthenticationService> logger,
             DatabaseConnectionFactory dbConnectionFactory
         )
             : base(auditEventDal, logger, dbConnectionFactory.GetConnection)
@@ -47,25 +47,25 @@ namespace StrengthIgniter.Core.Services
         }
         #endregion
 
-        public LoginResponse Login(LoginRequest request)
+        public AuthenticationResponse Authenticate(AuthenticationRequest request)
         {
             try
             {
-                UserModel user = _UserDal.GetByEmailAddress(request.EmailAddress);
+                UserModel user = _UserDal.SelectByEmailAddress(request.EmailAddress);
                 if (user != null)
                 {
                     bool passwordIsValid = _HashUtility.Validate(request.Password, user.PasswordHash);
 
                     if (!user.IsRegistrationValidated)
                     {
-                        return new LoginResponse { ResponseType = LoginResponseType.AccountNotValidated };
+                        return new AuthenticationResponse { ResponseType = AuthenticationResponseType.AccountNotValidated };
                         //TODO: possibly send an email, reminding user to validate email, possibly resend validation email...
                     }
 
                     if (!UserAccountIsLockedOut(user))
                     {
                         int? accountLockedAuditEventId = null;
-                        LoginResponse response = new LoginResponse { ResponseType = LoginResponseType.LoginAttemptFailed };
+                        AuthenticationResponse response = new AuthenticationResponse { ResponseType = AuthenticationResponseType.LoginAttemptFailed };
 
                         using (IDbConnection dbConnection = GetConnection())
                         {
@@ -78,8 +78,9 @@ namespace StrengthIgniter.Core.Services
                                     user.LockoutEndDateTimeUtc = null;
                                     user.LastLoginDateTimeUtc = DateTime.UtcNow;
 
-                                    response = new LoginResponse { 
-                                        ResponseType = LoginResponseType.Success, 
+                                    response = new AuthenticationResponse
+                                    {
+                                        ResponseType = AuthenticationResponseType.Success,
                                         UserReference = user.Reference,
                                         Name = user.Name,
                                         UserType = user.UserTypeCode,
@@ -91,16 +92,16 @@ namespace StrengthIgniter.Core.Services
                                 else// password is not valid
                                 {
                                     user.FailedLoginAttemptCount = user.FailedLoginAttemptCount + 1;
-                                    if (user.FailedLoginAttemptCount >= _Config.MaxFailedAttempts)
+                                    if (user.FailedLoginAttemptCount >= _Config.MaxFailedAuthenticateAttempts)
                                     {
                                         user.FailedLoginAttemptCount = 0;
-                                        user.LockoutEndDateTimeUtc = DateTime.UtcNow.AddMinutes(_Config.LockoutTimeSpanMinutes);
+                                        user.LockoutEndDateTimeUtc = DateTime.UtcNow.AddMinutes(_Config.AccountLockoutTimeSpanMinutes);
 
-                                        response = new LoginResponse { ResponseType = LoginResponseType.AccountLocked };
+                                        response = new AuthenticationResponse { ResponseType = AuthenticationResponseType.AccountLocked };
                                         accountLockedAuditEventId = CreateAuditEvent(AuditEventType.AccountLocked, user.UserId, "", null);
                                     }
                                 }
-                                _UserDal.UpdateUserLoginAttempt(dbConnection, dbTransaction, user);
+                                _UserDal.UpdateLoginAttempt(dbConnection, dbTransaction, user);
 
                                 dbTransaction.Commit();
 
@@ -121,7 +122,7 @@ namespace StrengthIgniter.Core.Services
                     _HashUtility.Validate("RunFakeHashValidator", _HashUtility.GenerateFakeHash());
                 }
 
-                return new LoginResponse { ResponseType = LoginResponseType.LoginAttemptFailed };
+                return new AuthenticationResponse { ResponseType = AuthenticationResponseType.LoginAttemptFailed };
             }
             catch (Exception ex)
             {
@@ -130,7 +131,7 @@ namespace StrengthIgniter.Core.Services
             }
         }
 
-        #region Private Methods
+        #region Helpers
 
         private bool UserAccountIsLockedOut(UserModel user)
         {
@@ -150,7 +151,7 @@ namespace StrengthIgniter.Core.Services
             {
                 Subject = _Config.AccountLockoutEmailSubject,
                 Username = user.Name,
-                LockoutMinutes = _Config.LockoutTimeSpanMinutes
+                LockoutMinutes = _Config.AccountLockoutTimeSpanMinutes
             });
 
             EmailMessageModel msg = new EmailMessageModel
@@ -169,34 +170,36 @@ namespace StrengthIgniter.Core.Services
 
     }
 
-    #region LoginService Models
 
-    public class LoginServiceConfig
+    #region AuthenticationService Models
+
+    public class AuthenticationServiceConfig
     {
-        public int MaxFailedAttempts { get; set; }
-        public int LockoutTimeSpanMinutes { get; set; }
+        public int MaxFailedAuthenticateAttempts { get; set; }
+        public int AccountLockoutTimeSpanMinutes { get; set; }
 
+        //Account lockout email settings
         public string AccountLockoutEmailSubject { get; set; }
         public string AccountLockoutEmailTemplatePath { get; set; }
     }
 
-    public sealed class LoginRequest
+    public sealed class AuthenticationRequest
     {
         public string EmailAddress { get; set; }
         public string Password { get; set; }
     }
 
-    public sealed class LoginResponse
+    public sealed class AuthenticationResponse
     {
         //return relevant login data
-        public LoginResponseType ResponseType { get; internal set; }
+        public AuthenticationResponseType ResponseType { get; internal set; }
         public Guid UserReference { get; internal set; }
         public string Name { get; internal set; }
         public string EmailAddress { get; internal set; }
         public UserType UserType { get; set; }
     }
 
-    public enum LoginResponseType
+    public enum AuthenticationResponseType
     {
         Success = 1,
         LoginAttemptFailed = -1,

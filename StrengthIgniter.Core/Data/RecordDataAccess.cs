@@ -11,13 +11,14 @@ namespace StrengthIgniter.Core.Data
 {
     public interface IRecordDataAccess
     {
-        RecordModel GetByIdAndUser(int id, Guid userReference);
-        IEnumerable<RecordModel> GetByExerciseAndUser(Guid exerciseReference, Guid userReference);
-        Tuple<IEnumerable<RecordModel>, int> GetByExerciseAndUser(Guid exerciseReference, Guid userReference, int? offset, int? fetch);
+        RecordModel Select(Guid reference, Guid userReference);
+        IEnumerable<RecordModel> SelectByExercise(Guid exerciseReference, Guid userReference);
+
+        Tuple<IEnumerable<RecordModel>, int> FilterByExercise(Guid exerciseReference, Guid userReference, int? offset, int? fetch);
 
         int Insert(IDbConnection dbConnection, IDbTransaction dbTransaction, RecordModel record);
         void Update(IDbConnection dbConnection, IDbTransaction dbTransaction, RecordModel record);
-        void Delete(IDbConnection dbConnection, IDbTransaction dbTransaction, int recordId, Guid userReference);
+        void Delete(IDbConnection dbConnection, IDbTransaction dbTransaction, Guid reference, Guid userReference);
     }
 
     public class RecordDataAccess : DataAccessBase, IRecordDataAccess
@@ -28,37 +29,39 @@ namespace StrengthIgniter.Core.Data
         }
         #endregion
 
-        public RecordModel GetByIdAndUser(int id, Guid userReference)
+        public RecordModel Select(Guid reference, Guid userReference)
         {
             #region SQL
             string sql = @"
-SELECT TOP 1 [r].[RecordId]
-      ,[r].[UserId]
-      ,[r].[ExerciseId]
-      ,[r].[Date]
-      ,[r].[Sets]
-      ,[r].[Reps]
-      ,[r].[WeightKg]
-      ,[r].[BodyweightKg]
-      ,[r].[RPE]
-      ,[r].[Notes]
-      ,[r].[CreatedDateTimeUtc]
-      ,[e].[Name] AS [ExerciseName]
-      ,[u].[Reference] AS [UserReference]
-      ,[e].[Reference] AS [ExerciseReference]
-FROM [Record] [r]
-	INNER JOIN [User] [u]
-		ON [r].[UserId] = [u].[UserId]
-    INNER JOIN [Exercise] [e]
-        ON [r].[ExerciseId] = [e].[ExerciseId]
+SELECT TOP 1 
+	r.RecordId,
+    r.Reference,
+	r.UserId,
+	r.ExerciseId,
+	r.[Date],
+    r.[Sets],
+    r.Reps,
+    r.WeightKg,
+    r.BodyweightKg,
+    r.RPE,
+    r.Notes,
+    r.CreatedDateTimeUtc,
+    e.[Name] AS ExerciseName,
+    u.Reference AS UserReference,
+    e.Reference AS ExerciseReference
+FROM Record r
+INNER JOIN [User] u 
+    ON r.UserId = u.UserId
+INNER JOIN Exercise e 
+    ON r.ExerciseId = e.ExerciseId
 WHERE 
-	[r].[RecordId] = @RecordId AND
-	[u].[Reference] = @UserReference
+	r.Reference = @Reference AND
+	u.Reference = @UserReference
 ".Trim();
 
             #endregion
 
-            object parameters = new { RecordId = id, UserReference = userReference };
+            object parameters = new { Reference = reference, UserReference = userReference };
 
             try
             {
@@ -75,32 +78,34 @@ WHERE
 
         }
 
-        public IEnumerable<RecordModel> GetByExerciseAndUser(Guid exerciseReference, Guid userReference)
+        public IEnumerable<RecordModel> SelectByExercise(Guid exerciseReference, Guid userReference)
         {
             #region SQL
             string sql = @"
-SELECT [r].[RecordId]
-      ,[r].[UserId]
-      ,[r].[ExerciseId]
-	  ,[e].[Name] AS [ExerciseName]
-      ,[r].[Date]
-      ,[r].[Sets]
-      ,[r].[Reps]
-      ,[r].[WeightKg]
-      ,[r].[BodyweightKg]
-      ,[r].[RPE]
-      ,[r].[Notes]
-      ,[r].[CreatedDateTimeUtc]
-      ,[u].[Reference] AS [UserReference]
-      ,[e].[Reference] AS [ExerciseReference]
-FROM [Record] [r]
-	INNER JOIN [User] [u]
-		ON [r].[UserId] = [u].[UserId]
-	INNER JOIN [Exercise] [e]
-		ON [r].[ExerciseId] = [e].[ExerciseId]
+SELECT 
+	r.RecordId,
+	r.Reference,
+    r.UserId,
+    r.ExerciseId,
+	e.[Name] AS ExerciseName,
+    r.[Date],
+    r.[Sets],
+    r.Reps,
+    r.WeightKg,
+    r.BodyweightKg,
+    r.RPE,
+    r.Notes,
+    r.CreatedDateTimeUtc,
+    u.Reference AS UserReference,
+    e.Reference AS ExerciseReference
+FROM Record r
+INNER JOIN [User] u
+	ON r.UserId = u.UserId
+INNER JOIN Exercise e
+	ON r.ExerciseId = e.ExerciseId
 WHERE
-	[e].[Reference] = @ExerciseReference AND
-	[u].[Reference] = @UserReference
+	e.Reference = @ExerciseReference AND
+	u.Reference = @UserReference
 ".Trim();
             #endregion
 
@@ -120,62 +125,9 @@ WHERE
             }
         }
 
-        public Tuple<IEnumerable<RecordModel>, int> GetByExerciseAndUser(Guid exerciseReference, Guid userReference, int? offset, int? fetch)
+        public Tuple<IEnumerable<RecordModel>, int> FilterByExercise(Guid exerciseReference, Guid userReference, int? offset, int? fetch)
         {
-            #region SQL
-            string sql = @"
-SELECT {0}
-       [r].[RecordId]
-      ,[r].[UserId]
-      ,[r].[ExerciseId]
-	  ,[e].[Name] AS [ExerciseName]
-      ,[r].[Date]
-      ,[r].[Sets]
-      ,[r].[Reps]
-      ,[r].[WeightKg]
-      ,[r].[BodyweightKg]
-      ,[r].[RPE]
-      ,[r].[Notes]
-      ,[r].[CreatedDateTimeUtc]
-      ,[u].[Reference] AS [UserReference]
-      ,[e].[Reference] AS [ExerciseReference]
-FROM [Record] [r]
-	INNER JOIN [User] [u]
-		ON [r].[UserId] = [u].[UserId]
-	INNER JOIN [Exercise] [e]
-		ON [r].[ExerciseId] = [e].[ExerciseId]
-WHERE
-	[e].[Reference] = @ExerciseReference AND
-	[u].[Reference] = @UserReference
-ORDER BY  [r].[Date] DESC
-{1}
-
-SELECT Count(*) [Count]
-FROM [Record] [r]
-	INNER JOIN [User] [u]
-		ON [r].[UserId] = [u].[UserId]
-	INNER JOIN [Exercise] [e]
-		ON [r].[ExerciseId] = [e].[ExerciseId]
-WHERE
-	[e].[Reference] = @ExerciseReference AND
-	[u].[Reference] = @UserReference
-".Trim();
-
-            if (offset.HasValue && fetch.HasValue)
-            {
-                sql = string.Format(sql, "", "OFFSET @Offset ROWS FETCH NEXT @Fetch ROWS ONLY");
-            }
-            else if (fetch.HasValue)
-            {
-                sql = string.Format(sql, "TOP @Fetch", "");
-            }
-            else
-            {
-                sql = string.Format(sql, "", "");
-            }
-
-            #endregion
-
+            string sql = GenerateFilterByExerciseSql(offset, fetch);
             object parameters = new { ExerciseReference = exerciseReference, UserReference = userReference, Offset = offset, Fetch = fetch };
             RecordModel[] records = null;
             int total = 0;
@@ -210,8 +162,13 @@ WHERE
         {
             #region SQL
             string sql = @"
+SELECT TOP 1 @UserId = [UserId] 
+FROM [User] 
+WHERE [Reference] = @UserReference
+
 INSERT INTO [Record]
     ([UserId]
+    ,[Reference]
     ,[ExerciseId]
     ,[Date]
     ,[Sets]
@@ -223,6 +180,7 @@ INSERT INTO [Record]
     ,[CreatedDateTimeUtc])
 VALUES
     (@UserId
+    ,@Reference
     ,@ExerciseId
     ,@Date
     ,@Sets
@@ -235,11 +193,6 @@ VALUES
 
 SELECT SCOPE_IDENTITY()
 ".Trim();
-            if(record.UserReference.HasValue)
-            {
-                sql = @"SELECT TOP 1 @UserId = [UserId] FROM [User] WHERE [Reference] = @UserReference
-" + sql;
-            }
             #endregion
 
             try
@@ -273,7 +226,7 @@ IF EXISTS(
 		  ,[RPE] = @RPE
 		  ,[Notes] = @Notes
 	WHERE 
-		[RecordId] = @RecordId
+		[Reference] = @Reference
  END
 ".Trim();
 
@@ -289,14 +242,14 @@ IF EXISTS(
             #endregion
         }
 
-        public void Delete(IDbConnection dbConnection, IDbTransaction dbTransaction, int recordId, Guid userReference)
+        public void Delete(IDbConnection dbConnection, IDbTransaction dbTransaction, Guid reference, Guid userReference)
         {
             #region SQL
             string sql = @"
 DELETE 
 FROM [Record] 
 WHERE 
-	[RecordId] = @RecordId AND 
+	[Reference] = @Reference AND 
 	[UserId] IN (
 		SELECT TOP 1 [u].[UserId]
 		FROM [Record] [r]
@@ -307,7 +260,7 @@ WHERE
 ".Trim();
             #endregion
 
-            object parameters = new { RecordId = recordId, UserReference = userReference };
+            object parameters = new { Reference = reference, UserReference = userReference };
 
             try
             {
@@ -319,5 +272,70 @@ WHERE
             }
 
         }
+
+        #region Private Helpers
+
+        private string GenerateFilterByExerciseSql(int? offset, int? fetch)
+        {
+            // define variables
+            string top = "";
+            string offsetFetchRows = "";
+
+            // set the top or offset depending on configuration of offset and fetch parameters
+            if (offset.HasValue && fetch.HasValue)
+            {
+                offsetFetchRows = "OFFSET @Offset ROWS FETCH NEXT @Fetch ROWS ONLY";
+            }
+            else if (fetch.HasValue)
+            {
+                top = "TOP @Fetch";
+            }
+            else
+            {
+                // do nothing
+            }
+
+            return $@"
+SELECT {top}
+	r.RecordId,
+    r.Reference,
+    r.UserId,
+    r.ExerciseId,
+	e.[Name] AS ExerciseName,
+    r.[Date],
+    r.[Sets],
+    r.Reps,
+    r.WeightKg,
+    r.BodyweightKg,
+    r.RPE,
+    r.Notes,
+    r.CreatedDateTimeUtc,
+    u.Reference AS UserReference,
+    e.Reference AS ExerciseReference
+FROM Record r
+INNER JOIN [User] u
+	ON r.UserId = u.UserId
+INNER JOIN Exercise e
+	ON r.ExerciseId = e.ExerciseId
+WHERE
+	e.Reference = @ExerciseReference AND
+	u.Reference = @UserReference
+ORDER BY  r.[Date] DESC
+{offsetFetchRows}
+
+SELECT Count(*) Count
+FROM Record r
+INNER JOIN [User] u
+	ON r.UserId = u.UserId
+INNER JOIN Exercise e
+	ON r.ExerciseId = e.ExerciseId
+WHERE
+	e.Reference = @ExerciseReference AND
+	u.Reference = @UserReference
+".Trim();
+
+        }
+
+        #endregion
     }
 }

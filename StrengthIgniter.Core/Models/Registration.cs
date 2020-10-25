@@ -1,10 +1,11 @@
 ﻿using FluentValidation;
+using StrengthIgniter.Core.Models.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace StrengthIgniter.Core.Models
 {
-    public class RegistrationModel
+    public class RegistrationModel : ModelBase
     {
         public string Name { get; set; }
         public string EmailAddress { get; set; }

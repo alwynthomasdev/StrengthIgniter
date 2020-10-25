@@ -49,7 +49,7 @@ namespace StrengthIgniter.Core.Services
             _UserDal = userDal;
             _HashUtility = hashUtility;
 
-            _SecurityQuestions = securityQuestionDal.GetQuestions();
+            _SecurityQuestions = securityQuestionDal.Select();
         }
         #endregion
 
@@ -57,7 +57,7 @@ namespace StrengthIgniter.Core.Services
         {
             try
             {
-                return _UserDal.GetFailedQuestionsForUser(userReference);
+                return _UserDal.SelectFailedQuestions(userReference);
             }
             catch(Exception ex)
             {
@@ -74,7 +74,7 @@ namespace StrengthIgniter.Core.Services
                 {
                     using (IDbTransaction dbTransaction = dbConnection.BeginTransaction())
                     {
-                        UserModel user = _UserDal.GetByReference(userReference);
+                        UserModel user = _UserDal.Select(userReference);
                         if (user != null)
                         {
                             List<AuditEventItemModel> auditItems = new List<AuditEventItemModel>();

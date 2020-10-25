@@ -241,7 +241,7 @@ namespace StrengthIgniter.Web.Controllers
         private async Task SignInAsync(LoginResponse loginResponse, bool isPersistent = false)
         {
             IEnumerable<Claim> claims = CreateClaims(loginResponse);
-            ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            ClaimsIdentity identity = new ClaimsIdentity(claims);
             ClaimsPrincipal principal = new ClaimsPrincipal(identity);
 
             await HttpContext.SignInAsync(
