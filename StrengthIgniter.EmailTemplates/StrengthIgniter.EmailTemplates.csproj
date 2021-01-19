@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Templates\UserAccountExists.html" />
+    <None Remove="Templates\UserAccountLocked.html" />
+    <None Remove="Templates\UserAccountNotFound.html" />
+    <None Remove="Templates\UserRegistrationValidation.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\UserAccountExists.html" />
+    <EmbeddedResource Include="Templates\UserAccountLocked.html" />
+    <EmbeddedResource Include="Templates\UserAccountNotFound.html" />
+    <EmbeddedResource Include="Templates\UserRegistrationValidation.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Handlebars.Net" Version="2.0.3" />
+  </ItemGroup>
+
+</Project>

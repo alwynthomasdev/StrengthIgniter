@@ -8,9 +8,5 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\StrengthIgniter.Core\StrengthIgniter.Core.csproj" />
-  </ItemGroup>
-
 
 </Project>
