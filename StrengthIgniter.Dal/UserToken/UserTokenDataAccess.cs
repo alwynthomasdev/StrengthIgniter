@@ -78,7 +78,6 @@ namespace StrengthIgniter.Dal.UserToken
 
         public void Insert(UserTokenModel token, IDbTransaction dbTransaction = null)
         {
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spUserTokenInsert";
             object parameters = new
             {
@@ -89,7 +88,11 @@ namespace StrengthIgniter.Dal.UserToken
             };
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
             }
             catch (Exception ex)
             {
@@ -99,7 +102,6 @@ namespace StrengthIgniter.Dal.UserToken
 
         public void Delete(Guid tokenReference, IDbTransaction dbTransaction = null)
         {
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spUserTokenDelete";
             object parameters = new
             {
@@ -107,7 +109,11 @@ namespace StrengthIgniter.Dal.UserToken
             };
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
             }
             catch (Exception ex)
             {

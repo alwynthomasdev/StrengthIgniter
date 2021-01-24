@@ -77,10 +77,6 @@ namespace StrengthIgniter.Dal.Exercise
 
         public int Insert(ExerciseModel exercise, IDbTransaction dbTransaction = null)
         {
-            //throw a validation exception if exercise not valid
-            exercise.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spExerciseInsert";
             object parameters = new
             {
@@ -91,12 +87,18 @@ namespace StrengthIgniter.Dal.Exercise
 
             try
             {
-                int? exerciseId = dbConnection.QueryFirstOrDefault<int?>(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
-                if (exerciseId.HasValue)
+
+                return ManageConnection<int>((con, trn) =>
                 {
-                    return exerciseId.Value;
-                }
-                else throw new Exception("Failed to insert exercise.");
+
+                    int? exerciseId = con.QueryFirstOrDefault<int?>(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+                    if (exerciseId.HasValue)
+                    {
+                        return exerciseId.Value;
+                    }
+                    else throw new Exception("Failed to insert exercise.");
+
+                }, dbTransaction);
             }
             catch (Exception ex)
             {
@@ -106,10 +108,6 @@ namespace StrengthIgniter.Dal.Exercise
 
         public void Update(ExerciseModel exercise, IDbTransaction dbTransaction = null)
         {
-            //throw a validation exception if exercise not valid
-            exercise.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spExerciseUpdate";
             object parameters = new
             {
@@ -120,7 +118,11 @@ namespace StrengthIgniter.Dal.Exercise
 
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => { 
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
             }
             catch (Exception ex)
             {
@@ -130,7 +132,6 @@ namespace StrengthIgniter.Dal.Exercise
 
         public void Delete(int id, Guid userReference, IDbTransaction dbTransaction = null)
         {
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spExerciseDelete";
             object parameters = new
             {
@@ -140,7 +141,11 @@ namespace StrengthIgniter.Dal.Exercise
 
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
             }
             catch (Exception ex)
             {

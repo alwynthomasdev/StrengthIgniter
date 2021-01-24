@@ -16,9 +16,8 @@ namespace StrengthIgniter.Dal.AuditEvent
         }
         #endregion
 
-        public int Insert(AuditEventModel auditEvent, IDbTransaction dbTransaction)
+        public int Insert(AuditEventModel auditEvent, IDbTransaction dbTransaction = null)
         {
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spAuditEventInsert";
             var parameters = new
             {
@@ -32,12 +31,18 @@ namespace StrengthIgniter.Dal.AuditEvent
 
             try
             {
-                int? aid = dbConnection.QueryFirstOrDefault<int>(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
-                if (!aid.HasValue)
-                {
-                    throw new Exception("Failed to create audit event.");
-                }
-                return aid.Value;
+
+                return ManageConnection<int>((con, trn) => {
+
+                    int? aid = con.QueryFirstOrDefault<int>(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+                    if (!aid.HasValue)
+                    {
+                        throw new Exception("Failed to create audit event.");
+                    }
+                    return aid.Value;
+
+                }, dbTransaction);
+
             }
             catch (Exception ex)
             {

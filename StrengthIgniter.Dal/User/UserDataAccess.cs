@@ -56,9 +56,6 @@ namespace StrengthIgniter.Dal.User
 
         public void Insert(UserModel user, IDbTransaction dbTransaction = null)
         {
-            user.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spUserInsert";
             object parameters = new
             {
@@ -70,7 +67,12 @@ namespace StrengthIgniter.Dal.User
             };
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
+
             }
             catch (Exception ex)
             {
@@ -80,9 +82,6 @@ namespace StrengthIgniter.Dal.User
 
         public void Update(UserModel user, IDbTransaction dbTransaction = null)
         {
-            user.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spUserUpdate";
             object parameters = new
             {
@@ -97,7 +96,11 @@ namespace StrengthIgniter.Dal.User
             };
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
             }
             catch (Exception ex)
             {

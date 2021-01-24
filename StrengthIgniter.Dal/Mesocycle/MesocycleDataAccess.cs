@@ -82,9 +82,6 @@ namespace StrengthIgniter.Dal.Mesocycle
 
         public int Insert(MesocycleModel mesocycle, IDbTransaction dbTransaction = null)
         {
-            mesocycle.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spMesocycleInsert";
             object parameters = new
             {
@@ -98,12 +95,16 @@ namespace StrengthIgniter.Dal.Mesocycle
 
             try
             {
-                int? id = dbConnection.QueryFirstOrDefault<int?>(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
-                if (id.HasValue)
-                {
-                    return id.Value;
-                }
-                else throw new Exception("Failed to insert mesocycle.");
+                return ManageConnection<int>((con, trn) => {
+
+                    int? id = con.QueryFirstOrDefault<int?>(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+                    if (id.HasValue)
+                    {
+                        return id.Value;
+                    }
+                    else throw new Exception("Failed to insert mesocycle.");
+
+                }, dbTransaction);
             }
             catch (Exception ex)
             {
@@ -113,9 +114,6 @@ namespace StrengthIgniter.Dal.Mesocycle
 
         public void Update(MesocycleModel mesocycle, IDbTransaction dbTransaction = null)
         {
-            mesocycle.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spMesocycleUpdate";
             object parameters = new
             {
@@ -130,7 +128,13 @@ namespace StrengthIgniter.Dal.Mesocycle
 
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
+
             }
             catch (Exception ex)
             {
@@ -143,8 +147,7 @@ namespace StrengthIgniter.Dal.Mesocycle
             bool deleteMicrocycles = false, bool deleteRecords = false, 
             IDbTransaction dbTransaction = null)
         {
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
-            string sp = "dbo.spMesocycleUpdate";
+            string sp = "dbo.spMesocycleDelete";
             object parameters = new
             {
                 MesocycleId = mesocycleId,
@@ -155,7 +158,13 @@ namespace StrengthIgniter.Dal.Mesocycle
 
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
+
             }
             catch (Exception ex)
             {

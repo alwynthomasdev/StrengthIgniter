@@ -83,9 +83,6 @@ namespace StrengthIgniter.Dal.Microcycle
 
         public int Insert(MicrocycleModel microcycle, IDbTransaction dbTransaction = null)
         {
-            microcycle.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spMicrocycleInsert";
             object parameters = new
             {
@@ -100,12 +97,18 @@ namespace StrengthIgniter.Dal.Microcycle
 
             try
             {
-                int? id = dbConnection.QueryFirstOrDefault<int?>(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
-                if (id.HasValue)
-                {
-                    return id.Value;
-                }
-                else throw new Exception("Failed to insert microcycle.");
+
+                return ManageConnection<int>((con, trn) => {
+
+                    int? id = con.QueryFirstOrDefault<int?>(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+                    if (id.HasValue)
+                    {
+                        return id.Value;
+                    }
+                    else throw new Exception("Failed to insert microcycle.");
+
+                }, dbTransaction);
+                
             }
             catch (Exception ex)
             {
@@ -115,9 +118,6 @@ namespace StrengthIgniter.Dal.Microcycle
 
         public void Update(MicrocycleModel microcycle, IDbTransaction dbTransaction = null)
         {
-            microcycle.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spMicrocycleUpdate";
             object parameters = new
             {
@@ -133,7 +133,12 @@ namespace StrengthIgniter.Dal.Microcycle
 
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
+
             }
             catch (Exception ex)
             {
@@ -143,7 +148,6 @@ namespace StrengthIgniter.Dal.Microcycle
 
         public void Delete(int microcycleId, Guid userReference, bool deleteRecords = false, IDbTransaction dbTransaction = null)
         {
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spMicrocycleDelete";
             object parameters = new
             {
@@ -154,7 +158,12 @@ namespace StrengthIgniter.Dal.Microcycle
 
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
+
             }
             catch (Exception ex)
             {

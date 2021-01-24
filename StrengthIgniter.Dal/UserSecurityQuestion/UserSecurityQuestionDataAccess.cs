@@ -39,9 +39,6 @@ namespace StrengthIgniter.Dal.UserSecurityQuestion
 
         public int Insert(UserSecurityQuestionModel userSecurityQuestion, IDbTransaction dbTransaction = null)
         {
-            userSecurityQuestion.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spUserSecurityQuestionInsert";
             object parameter = new
             {
@@ -53,12 +50,17 @@ namespace StrengthIgniter.Dal.UserSecurityQuestion
             };
             try
             {
-                int? id = dbConnection.QueryFirstOrDefault<int?>(sp, parameter, commandType: CommandType.StoredProcedure);
-                if (id.HasValue)
-                {
-                    return id.Value;
-                }
-                else throw new Exception("Failed to insert UserSecurityQuestion.");
+                return ManageConnection<int>((con, trn) => {
+
+                    int? id = con.QueryFirstOrDefault<int?>(sp, parameter, transaction: trn, commandType: CommandType.StoredProcedure);
+                    if (id.HasValue)
+                    {
+                        return id.Value;
+                    }
+                    else throw new Exception("Failed to insert UserSecurityQuestion.");
+
+                }, dbTransaction);
+
             }
             catch(Exception ex)
             {
@@ -68,9 +70,6 @@ namespace StrengthIgniter.Dal.UserSecurityQuestion
 
         public void Update(UserSecurityQuestionModel userSecurityQuestion, IDbTransaction dbTransaction = null)
         {
-            userSecurityQuestion.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spUserSecurityQuestionUpdate";
             object parameter = new
             {
@@ -82,7 +81,11 @@ namespace StrengthIgniter.Dal.UserSecurityQuestion
             };
             try
             {
-                 dbConnection.Execute(sp, parameter, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameter, transaction: trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
             }
             catch (Exception ex)
             {
@@ -92,7 +95,6 @@ namespace StrengthIgniter.Dal.UserSecurityQuestion
 
         public void Delete(int userSecurityQuestionId, Guid userReference, IDbTransaction dbTransaction = null)
         {
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spUserSecurityQuestionDelete";
             object parameter = new
             {
@@ -101,7 +103,11 @@ namespace StrengthIgniter.Dal.UserSecurityQuestion
             };
             try
             {
-                dbConnection.Execute(sp, parameter, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameter, transaction: trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
             }
             catch (Exception ex)
             {

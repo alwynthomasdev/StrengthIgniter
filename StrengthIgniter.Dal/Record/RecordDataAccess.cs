@@ -88,9 +88,6 @@ namespace StrengthIgniter.Dal.Record
 
         public int Insert(RecordModel record, IDbTransaction dbTransaction = null)
         {
-            record.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spRecordInsert";
             object parameters = new
             {
@@ -111,12 +108,18 @@ namespace StrengthIgniter.Dal.Record
 
             try
             {
-                int? recordId = dbConnection.QuerySingle<int?>(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
-                if (recordId.HasValue)
-                {
-                    return recordId.Value;
-                }
-                else throw new Exception("Failed to insert record.");
+
+                return ManageConnection<int>((con, trn) => {
+
+                    int? recordId = con.QuerySingle<int?>(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+                    if (recordId.HasValue)
+                    {
+                        return recordId.Value;
+                    }
+                    else throw new Exception("Failed to insert record.");
+
+                }, dbTransaction);
+
             }
             catch(Exception ex)
             {
@@ -126,9 +129,6 @@ namespace StrengthIgniter.Dal.Record
 
         public void Update(RecordModel record, IDbTransaction dbTransaction = null)
         {
-            record.ValidateAndThrow();
-
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spRecordUpdate";
             object parameters = new
             {
@@ -147,7 +147,13 @@ namespace StrengthIgniter.Dal.Record
 
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
+
             }
             catch (Exception ex)
             {
@@ -157,7 +163,6 @@ namespace StrengthIgniter.Dal.Record
 
         public void Delete(int recordId, Guid userReference, IDbTransaction dbTransaction = null)
         {
-            IDbConnection dbConnection = dbTransaction != null ? dbTransaction.Connection : GetConnection();
             string sp = "dbo.spRecordDelete";
             object parameters = new
             {
@@ -167,7 +172,11 @@ namespace StrengthIgniter.Dal.Record
 
             try
             {
-                dbConnection.Execute(sp, parameters, dbTransaction, commandType: CommandType.StoredProcedure);
+                ManageConnection((con, trn) => {
+
+                    con.Execute(sp, parameters, trn, commandType: CommandType.StoredProcedure);
+
+                }, dbTransaction);
             }
             catch (Exception ex)
             {
