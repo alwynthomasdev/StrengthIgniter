@@ -1,10 +1,5 @@
 /.vs
 /packages
-/StrengthIgniter.Web/.vs
-/StrengthIgniter.Web/node_modules/
-/StrengthIgniter.Web/wwwroot
-/StrengthIgniter.Web/bin
-/StrengthIgniter.Web/obj
 /StrengthIgniter.Api/bin
 /StrengthIgniter.Api/obj
 /StrengthIgniter.Dal/bin
@@ -21,3 +16,5 @@
 /StrengthIgniter.Core/obj
 /StrengthIgniter.Dal.Test/bin
 /StrengthIgniter.Dal.Test/obj
+/StrengthIgniter.Web.Old/bin
+/StrengthIgniter.Web.Old/obj

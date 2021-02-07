@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@section Styles{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.css" />
+}
+
+<div class="row">
+    <div class="col-12 mb-5">
+        <h3>Low Bar Squat</h3>
+        <hr />
+        <canvas id="squat-chart"></canvas>
+    </div>
+    <div class="col-12 mb-5">
+        <h3>Bench Press</h3>
+        <hr />
+        <canvas id="bench-chart"></canvas>
+    </div>
+    <div class="col-12 mb-5">
+        <h3>Deadlift</h3>
+        <hr />
+        <canvas id="deadlift-chart"></canvas>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        (function ($) {
+            'use strict';
+
+            //temporary, will be configurable per user
+            RenderMaxChart('63CCE723-DAD9-4AE7-9F0E-EFDA279FCEFE', 'squat-chart');
+            RenderMaxChart('A49C5BA1-A0A7-467E-9155-C66FFE925370', 'bench-chart');
+            RenderMaxChart('7C440DEB-D7EA-4D6A-BCC9-A57B8DBD232D', 'deadlift-chart');
+
+        })(jQuery);
+    </script>
+}
