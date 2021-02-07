@@ -18,3 +18,6 @@ if (environment.production) {
 
 platformBrowserDynamic(providers).bootstrapModule(AppModule)
   .catch(err => console.log(err));
+
+//Breaking change made by angular 8 -> 9 upgrade ...
+//export { renderModule, renderModuleFactory } from '@angular/platform-server';
