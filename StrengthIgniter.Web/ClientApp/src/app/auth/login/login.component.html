@@ -1,1 +1,26 @@
-<p>login works!</p>
+<form class="si-signin-form" [formGroup]="frmSignIn" (ngSubmit)="onSubmit()" novalidate>
+
+  <div class="text-center">
+
+    <img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal">Sign In</h1>
+
+    <label for="txt-email" class="sr-only">Email address</label>
+    <input formControlName="txtEmail" type="email" id="txt-email" class="form-control" placeholder="Email address" required autofocus>
+
+    <label for="txt-password" class="sr-only">Password</label>
+    <input formControlName="txtPassword" type="password" id="txt-password" class="form-control" placeholder="Password" required>
+
+    <div class="form-group mt-3">
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign In</button>
+    </div>
+  </div>
+
+  <div>
+    <p>
+      <a [routerLink]="['/auth/register']">Create Account</a>
+      <a [routerLink]="['/auth/forgot']" class="float-right">Forgot Password</a>
+    </p>
+  </div>
+
+</form>

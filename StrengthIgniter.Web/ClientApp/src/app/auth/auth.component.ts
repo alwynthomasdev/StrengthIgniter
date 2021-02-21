@@ -6,5 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./auth.component.scss']
 })
 export class AuthComponent {
-  title = 'auth';
+  title: string = 'auth';
+  currentYear: number = (new Date()).getFullYear(); 
+  
 }

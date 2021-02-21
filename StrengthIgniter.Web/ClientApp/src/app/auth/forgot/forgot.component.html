@@ -1,0 +1,28 @@
+<form class="si-forgot-form" novalidate>
+
+  <div class="text-center">
+
+    <img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal">Forgot Your Password</h1>
+
+    <div class="form-group">
+      <label for="txt-email" class="sr-only">Email address</label>
+      <input type="email" id="txt-email" class="form-control" placeholder="Email Address" required autofocus>
+    </div>
+
+    <div class="form-group">
+      <re-captcha siteKey="6LcDeFwaAAAAAJkbk38f4G4smdRliPKYrBSnUKkX"></re-captcha>
+    </div>    
+
+    <div class="form-group mt-3">
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Password Reset</button>
+    </div>
+  </div>
+
+  <div>
+    <p>
+      <a [routerLink]="['/auth']">Back</a>
+    </p>
+  </div>
+
+</form>
