@@ -10,7 +10,7 @@
     "font-awesome": "^4.7.0",
     "bootstrap-datepicker": "^1.9.0",
     "moment": "2.26.0",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "bootstrap-input-spinner": "^1.13.19",
     "alertifyjs": "^1.13.1"
   },
